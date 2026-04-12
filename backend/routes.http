@@ -1,0 +1,29 @@
+POST http://localhost:3333/stock
+Content-Type: application/json
+
+{
+    "Name": "Produto Teste",
+    "Model": "Modelo Teste",
+    "Date": "2025-01-01",
+    "Category": "Example Category"
+}
+
+###
+
+GET http://localhost:3333/stock
+
+###
+
+PUT http://localhost:3333/stock/daebe20b-59f3-44fa-a8fa-b05f993809d3
+Content-Type: application/json
+
+{
+    "Name": "Produto Atualizado",
+    "Model": "Modelo Teste",
+    "Date": "2025-01-01",
+    "Category": "Example Category"
+}
+
+###
+
+DELETE http://localhost:3333/stock/daebe20b-59f3-44fa-a8fa-b05f993809d3
