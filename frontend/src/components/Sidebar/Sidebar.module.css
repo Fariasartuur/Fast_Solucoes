@@ -1,0 +1,290 @@
+.sidebar {
+  width: 270px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  border-right: 1px solid #ddd;
+  background: white;
+  transition: width 0.4s ease;
+  padding-top: 20px;
+  z-index: 1000;
+}
+
+.sidebar.collapsed {
+  width: 85px;
+}
+
+/* Header e Logo */
+.sidebarHeader {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 20px;
+  transition: 0.4s ease;
+}
+
+.sidebar.collapsed .sidebarHeader {
+  padding: 5px 10px;
+}
+
+.logo {
+  color: #4543d1;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Toggler */
+.toggler {
+  width: 35px;
+  height: 35px;
+  color: #4543d1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFF;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.4s ease;
+}
+
+.sidebarToggler {
+  position: absolute;
+  right: 20px;
+}
+
+.sidebar.collapsed .sidebarToggler {
+  transform: translate(-4px, 65px);
+}
+
+.toggler:hover {
+  background: #dde4fb;
+}
+
+.toggler span {
+  font-size: 1.75rem;
+  transition: 0.4s ease;
+}
+
+.sidebar.collapsed .toggler span {
+  transform: rotate(180deg);
+}
+
+/* Listas de Navegação */
+.navList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 15px;
+  transition: 0.4s ease;
+}
+
+.primaryNav {
+  transform: translateY(15px);
+}
+
+.sidebar.collapsed .primaryNav {
+  transform: translateY(65px);
+}
+
+.sidebarNav {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1;
+  height: calc(100vh - 50px); /* Ajusta para o header e padding */
+}
+
+.secondaryNav {
+  position: relative;
+  bottom: 0;
+  margin-top: auto;
+  padding-bottom: 30px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Links e Itens */
+.navItem {
+  position: relative;
+}
+
+.navLink {
+  color: #4543d1;
+  text-decoration: none;
+  padding: 12px 15px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: 0.4s ease;
+}
+
+/* Hover e Estado Ativo Unificados */
+.navLink:hover,
+.navItem.active .navLink {
+  background: linear-gradient(90deg, #4543d1, #2e2d8b);
+  color: white;
+  transform: translateX(5px);
+}
+
+.navItem.active .navIcon {
+  color: white;
+}
+
+/* Indicador lateral no Ativo */
+.navItem.active::before {
+  content: "";
+  position: absolute;
+  left: -15px;
+  top: 20%;
+  height: 60%;
+  width: 4px;
+  background: #fff;
+  border-radius: 0 4px 4px 0;
+}
+
+.navLabel {
+  transition: opacity 0.4s ease;
+}
+
+.sidebar.collapsed .navLabel {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Tooltips */
+.navTooltip {
+  background: linear-gradient(90deg, #4543d1, #2e2d8b);
+  padding: 6px 12px;
+  border-radius: 8px;
+  opacity: 0;
+  display: none;
+  pointer-events: none;
+  color: white;
+  position: absolute;
+  top: 0;
+  left: calc(100% + 15px);
+  white-space: nowrap;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.sidebar.collapsed .navItem:hover .navTooltip {
+  display: block;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(10%);
+  transition: 0.4s ease;
+}
+
+/* Dropdown */
+
+.arrow {
+  margin-left: auto;
+  font-size: 1.2rem !important;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dropdownOpen .arrow {
+  transform: rotate(180deg);
+}
+
+.dropdownWrapper {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease-out, opacity 0.2s ease;
+  overflow: hidden;
+  opacity: 0;
+}
+
+.dropdownWrapper.show {
+  grid-template-rows: 1fr;
+  opacity: 1;
+}
+
+.dropdownList {
+  min-height: 0;
+  list-style: none;
+  padding: 5px 0 5px 45px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(162, 0, 255, 0.05);
+  border-radius: 0 0 8px 8px;
+}
+
+.dropdownLink {
+  text-decoration: none;
+  color: #4543d1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: 0.3s;
+  display: block;
+}
+
+.dropdownLink:hover {
+  color: #4543d1;
+  padding-left: 5px;
+  /* Efeito de deslize no hover */
+}
+
+@media (min-width: 769px) {
+  .sidebar.collapsed .primaryNav {
+    transform: translateY(65px);
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 250px;
+    left: -100%;
+    transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    padding-top: 0;
+  }
+
+  .dropdownList {
+    padding-left: 55px;
+  }
+
+  /* Quando NÃO estiver colapsada no mobile, ela entra na tela */
+  .sidebar:not(.collapsed) {
+    left: 0;
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  }
+
+  /* No mobile, o estado 'collapsed' será o estado 'escondido' */
+  .sidebar.collapsed {
+    left: -100%;
+    width: 250px;
+    /* Mantém a largura para quando abrir */
+  }
+
+  .sidebarHeader {
+    padding: 20px;
+  }
+
+  .logo {
+    display: block !important;
+    /* Sempre mostra o logo no mobile ao abrir */
+    opacity: 1 !important;
+  }
+
+  /* Esconde o botão de fechar original ou reposiciona */
+  .sidebarToggler {
+    right: 10px;
+  }
+
+  /* Tooltips não fazem sentido em telas touch */
+  .navTooltip {
+    display: none !important;
+  }
+
+  .primaryNav {
+    transform: translateY(0); /* Reseta para não bugar no mobile */
+  }
+}
