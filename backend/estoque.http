@@ -1,0 +1,25 @@
+POST http://localhost:3333/estoque
+Content-Type: application/json
+
+{
+  "id_item": "111ade8e-d049-473c-b108-0c01bf8efbbd",
+  "quantidade": 10
+}
+
+###
+
+GET http://localhost:3333/estoque
+
+###
+
+PUT http://localhost:3333/estoque/a3962bbf-ecbc-43c5-81c0-67acee8d7132
+Content-Type: application/json
+
+{
+    "id_item": "111ade8e-d049-473c-b108-0c01bf8efbbd",
+    "quantidade": 20
+}
+
+###
+
+DELETE http://localhost:3333/estoque/250c023f-a2fb-4289-aef4-e3661f87805c

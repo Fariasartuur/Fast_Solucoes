@@ -1,0 +1,31 @@
+POST http://localhost:3333/despesas
+Content-Type: application/json
+
+{
+  "nome_despesa": "Manutenção de Ar Condicionado",
+  "tipo_despesa": "Infraestrutura",
+  "valor": 350.50,
+  "data": "2026-05-02",
+  "status": "Pendente"
+}
+
+###
+
+GET http://localhost:3333/despesas
+
+###
+
+PUT http://localhost:3333/despesas/ab455711-70e7-4142-970c-2289e3eca05d
+Content-Type: application/json
+
+{
+    "nome_despesa": "Teste do Teste",
+    "tipo_despesa": "Tipo Teste",
+    "valor": 100.00,
+    "data": "2025-01-02",
+    "status": "Paga"
+}
+
+###
+
+DELETE http://localhost:3333/despesas/4eec4acf-81a0-45b9-a192-8e962de41f85
