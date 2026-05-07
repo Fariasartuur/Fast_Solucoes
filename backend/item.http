@@ -1,0 +1,29 @@
+POST http://localhost:3333/item
+Content-Type: application/json
+
+{
+    "nome_item": "Produto novo 02",
+    "modelo": "Modelo Teste",
+    "data_inscricao": "2025-01-01",
+    "categoria": "Example Category"
+}
+
+###
+
+GET http://localhost:3333/item
+
+###
+
+PUT http://localhost:3333/item/b5b9526b-a62a-4f78-bb06-677fa5546807
+Content-Type: application/json
+
+{
+    "nome_item": "Teste do Teste",
+    "modelo": "Modelo Teste",
+    "data_inscricao": "2025-01-02",
+    "categoria": "Example Category"
+}
+
+###
+
+DELETE http://localhost:3333/item/4eec4acf-81a0-45b9-a192-8e962de41f85

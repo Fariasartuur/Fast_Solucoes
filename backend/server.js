@@ -1,65 +1,38 @@
 import {fastify} from 'fastify';
 
-import { Database } from './database.js';
+import { Database_itens } from './database_itens.js';
+
+import { Database_estoque } from './database_estoque.js';
+
+import { Database_despesas } from './database_despesas.js';
+
+import { estoque } from "./estoque.js";
+
+import { item } from './item.js';
+
+import { despesas} from './despesas.js';
 
 const server = fastify();   
 
-const database = new Database();
+const database_itens = new Database_itens();
 
-server.get('/', () => {
-    
+const database_estoque = new Database_estoque();
+
+const database_despesas = new Database_despesas();
+
+server.decorate('db_despesas', database_despesas);
+
+server.decorate('db_itens', database_itens); 
+
+server.decorate('db_estoque', database_estoque);
+
+server.register(estoque);
+
+server.register(item);
+
+server.register(despesas);
+
+server.listen({ port: 3333 }).then(() => {
+  console.log("Servidor rodando!");
 });
 
-server.get('/home', () => {
-
-});
-
-server.post('/estoque', async (req, reply) => {
-
-    const { Name, Model, Date, Category } = req.body;
-
-    await database.create({
-        Name,
-        Model,
-        Date,
-        Category
-    });
-
-    return reply.status(201).send();
-
-});
-
-server.get('/estoque', async (req, reply) => {
-    const search = req.query.search
-    
-    const items = await database.list(search);
-
-    return items;
-});
-
-server.put('/estoque/:id', async (req, reply) => {
-    const itemid = req.params.id;
-
-    await database.update(itemid, {
-        Name: req.body.Name,
-        Model: req.body.Model,
-        Date: req.body.Date,
-        Category: req.body.Category
-    });
-
-    return reply.status(204).send();
-});
-
-server.delete('/estoque/:id', async (req, reply) => {
-    const itemid = req.params.id;
-
-    await database.delete(itemid);
-
-    return reply.status(204).send();
-});
-
-server.get('/financeiro', () => {
-
-});
-
-server.listen({port: 3333,})
