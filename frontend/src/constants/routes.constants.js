@@ -1,18 +1,37 @@
 export const ROUTES = {
-    HOME: {
-        path: '/',
-        name: 'Home'
-    },
     LOGIN: {
         path: '/login',
-        name: 'Login'
+        name: 'Login',
+        icon: 'login'
     },
     REGISTER: {              
         path: '/register',
-        name: 'Register'
+        name: 'Register',
+        icon: 'person_add'
+    },
+    HOME: {
+        path: '/',
+        name: 'Home',
+        icon: 'home'
+    },
+    DESPESAS: {
+        path: '/despesas',
+        name: 'Despesas',
+        icon: 'attach_money'
+    },
+    ESTOQUE: {
+        path: '/estoque',
+        name: 'Estoque',
+        icon: 'store'
+    },
+    ITEMS: {
+        path: '/items',
+        name: 'Items',
+        icon: 'inventory'
     },
     SETTINGS: {
         path: '/settings',
-        name: 'Settings'
+        name: 'Settings',
+        icon: 'settings'
     },
 }

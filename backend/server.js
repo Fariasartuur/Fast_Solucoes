@@ -1,4 +1,5 @@
 import {fastify} from 'fastify';
+import cors from '@fastify/cors';
 
 import { Database_itens } from './database_itens.js';
 
@@ -19,6 +20,11 @@ const database_itens = new Database_itens();
 const database_estoque = new Database_estoque();
 
 const database_despesas = new Database_despesas();
+
+server.register(cors, {
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+});
 
 server.decorate('db_despesas', database_despesas);
 

@@ -29,14 +29,14 @@
 .badge {
     font-size: 11px;
     background: #fff3ee;
-    color: #FF5A00;
+    color: var(--primary-color);
     border-radius: 20px;
     padding: 2px 8px;
     font-weight: 600;
 }
 
 .btnAdd {
-    background: #FF5A00;
+    background: var(--primary-color);
     border: none;
     cursor: pointer;
     color: white;
@@ -51,7 +51,7 @@
     transition: background 0.2s;
 }
 
-.btnAdd:hover { background: #e05000; }
+.btnAdd:hover { background: var(--primary-hover); }
 
 .btnAdd span { font-size: 18px; }
 
@@ -80,10 +80,10 @@
     transition: border-color 0.2s;
 }
 
-.taskInput:focus { border-color: #FF5A00; }
+.taskInput:focus { border-color: var(--primary-color); }
 
 .btnConfirm {
-    background: #FF5A00;
+    background: var(--primary-color);
     color: white;
     border: none;
     border-radius: 8px;
@@ -95,7 +95,7 @@
     transition: background 0.2s;
 }
 
-.btnConfirm:hover { background: #e05000; }
+.btnConfirm:hover { background: var(--primary-hover); }
 
 .taskItem {
     display: flex;
@@ -122,8 +122,8 @@
 }
 
 .taskCheck.checked {
-    border-color: #FF5A00;
-    background: #FF5A00;
+    border-color: var(--primary-color);
+    background: var(--primary-color);
 }
 
 .taskCheck.checked::after {

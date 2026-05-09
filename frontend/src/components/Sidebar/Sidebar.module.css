@@ -4,8 +4,8 @@
   left: 0;
   top: 0;
   height: 100vh;
-  border-right: 1px solid #2a2a2a;
-  background: #111111;
+  border-right: 1px solid var(--sidebar-border);
+  background: var(--sidebar-background);
   transition: width 0.4s ease;
   padding-top: 20px;
   z-index: 1000;
@@ -30,7 +30,7 @@
 }
 
 .logo {
-  color: #FF5A00;
+  color: var(--primary-color);
   font-size: 1.5rem;
   font-weight: bold;
   font-family: 'Barlow Condensed', sans-serif;
@@ -41,7 +41,7 @@
 .toggler {
   width: 35px;
   height: 35px;
-  color: #FF5A00;
+  color: var(--primary-color);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,7 +62,7 @@
 }
 
 .toggler:hover {
-  background: #1e1e1e;
+  background: var(--siderbar-hover);
 }
 
 .toggler span {
@@ -115,7 +115,7 @@
 }
 
 .navLink {
-  color: #888;
+  color: var(--sidebar-text-color);
   text-decoration: none;
   padding: 12px 15px;
   white-space: nowrap;
@@ -130,13 +130,13 @@
 /* Hover e Estado Ativo */
 .navLink:hover,
 .navItem.active .navLink {
-  background: #1e1e1e;
-  color: #FF5A00;
+  background: var(--siderbar-hover);
+  color: var(--primary-color);
   transform: translateX(5px);
 }
 
 .navItem.active .navIcon {
-  color: #FF5A00;
+  color: var(--primary-color);
 }
 
 /* Indicador lateral no Ativo */
@@ -147,7 +147,7 @@
   top: 20%;
   height: 60%;
   width: 4px;
-  background: #FF5A00;
+  background: var(--primary-color);
   border-radius: 0 4px 4px 0;
 }
 
@@ -163,14 +163,14 @@
 
 /* Tooltips */
 .navTooltip {
-  background: #1e1e1e;
-  border: 1px solid #2a2a2a;
+  background: var(--sidebar-background);
+  border: 1px solid var(--sidebar-border);
   padding: 6px 12px;
   border-radius: 8px;
   opacity: 0;
   display: none;
   pointer-events: none;
-  color: #FF5A00;
+  color: var(--primary-color);
   position: absolute;
   top: 0;
   left: calc(100% + 15px);
@@ -188,55 +188,6 @@
   transition: 0.4s ease;
 }
 
-/* Dropdown */
-.arrow {
-  margin-left: auto;
-  font-size: 1.2rem !important;
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.dropdownOpen .arrow {
-  transform: rotate(180deg);
-}
-
-.dropdownWrapper {
-  display: grid;
-  grid-template-rows: 0fr;
-  transition: grid-template-rows 0.3s ease-out, opacity 0.2s ease;
-  overflow: hidden;
-  opacity: 0;
-}
-
-.dropdownWrapper.show {
-  grid-template-rows: 1fr;
-  opacity: 1;
-}
-
-.dropdownList {
-  min-height: 0;
-  list-style: none;
-  padding: 5px 0 5px 45px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: rgba(255, 90, 0, 0.05);
-  border-radius: 0 0 8px 8px;
-}
-
-.dropdownLink {
-  text-decoration: none;
-  color: #888;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: 0.3s;
-  display: block;
-}
-
-.dropdownLink:hover {
-  color: #FF5A00;
-  padding-left: 5px;
-}
-
 @media (min-width: 769px) {
   .sidebar.collapsed .primaryNav {
     transform: translateY(65px);
@@ -249,10 +200,6 @@
     left: -100%;
     transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     padding-top: 0;
-  }
-
-  .dropdownList {
-    padding-left: 55px;
   }
 
   .sidebar:not(.collapsed) {

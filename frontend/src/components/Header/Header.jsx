@@ -17,8 +17,6 @@ const Header = ({ title, setIsCollapsed, isCollapsed }) => {
 
                 </div>
             </header>
-
-            <div className={styles.borderBottom} />
         </>
 
     );

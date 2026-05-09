@@ -9,7 +9,7 @@ h1 {
     flex-direction: row;
     padding: 20px 10px;
     border-bottom: 1px solid #2a2a2a;
-    background-color: #1a1a1a;
+    background-color: var(--main-background);
     margin-bottom: 16px;
     border-radius: 8px 8px 0 0;
 }
@@ -34,7 +34,7 @@ h1 {
     display: none;
     background: none;
     border: none;
-    color: #FF5A00;
+    color: var(--primary-color);
     cursor: pointer;
     transition: 0.4s ease;
 }

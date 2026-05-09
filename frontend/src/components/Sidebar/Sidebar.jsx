@@ -4,6 +4,8 @@ import { Link, useLocation } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes.constants.js';
 
 const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
+    const routes = Object.keys(ROUTES);
+    const noRoutes = ['LOGIN', 'REGISTER'];
     const sidebarRef = useRef(null);
     const location = useLocation();
 
@@ -46,23 +48,20 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
 
             <nav className={styles.sidebarNav}>
                 <ul className={`${styles.navList} ${styles.primaryNav}`}>
-                    <li className={`${styles.navItem} ${activeItem === ROUTES.HOME ? styles.active : ''}`}>
-                        <Link to={ROUTES.HOME.path} className={styles.navLink}>
-                            <span className={`${styles.navIcon} material-symbols-rounded`}>home</span>
-                            <span className={styles.navLabel}>Home</span>
-                        </Link>
-                        <span className={styles.navTooltip}>Home</span>
-                    </li>
-                </ul>
-
-                <ul className={`${styles.navList} ${styles.secondaryNav}`}>
-                    <li className={`${styles.navItem} ${activeItem === ROUTES.SETTINGS ? styles.active : ''}`}>
-                        <Link to={ROUTES.SETTINGS.path} className={styles.navLink}>
-                            <span className={`${styles.navIcon} material-symbols-rounded`}>settings</span>
-                            <span className={styles.navLabel}>Configurações</span>
-                        </Link>
-                        <span className={styles.navTooltip}>Configurações</span>
-                    </li>
+                    {routes
+                        .filter(key => !noRoutes.includes(key))
+                        .map(key => {
+                            const route = ROUTES[key];
+                            return (
+                                <li key={route.path} className={`${styles.navItem} ${activeItem === route ? styles.active : ''}`}>
+                                    <Link to={route.path} className={styles.navLink}>
+                                        <span className={`${styles.navIcon} material-symbols-rounded`}>{route.icon}</span>
+                                        <span className={styles.navLabel}>{route.name}</span>
+                                    </Link>
+                                    <span className={styles.navTooltip}>{route.name}</span>
+                                </li>
+                            );
+                        })}
                     <li className={`${styles.navItem} ${activeItem === ROUTES.LOGIN ? styles.active : ''}`}>
                         <Link to={ROUTES.LOGIN.path} className={styles.navLink}>
                             <span className={`${styles.navIcon} material-symbols-rounded`}>logout</span>
@@ -71,6 +70,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
                         <span className={styles.navTooltip}>Sair</span>
                     </li>
                 </ul>
+
             </nav>
         </aside>
     );

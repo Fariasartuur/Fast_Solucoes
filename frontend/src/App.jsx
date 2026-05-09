@@ -6,6 +6,9 @@ import MainLayout from './layout/MainLayout.jsx';
 import Login from './pages/Login/Login.jsx';
 import Home from './pages/Home/Home.jsx';
 import Register from './pages/Register/Register.jsx';
+import Item from './pages/Item/Item.jsx';
+import Estoque from './pages/Estoque/Estoque.jsx';
+import Despesa from './pages/Despesa/Despesa.jsx';
 
 function App() {
 
@@ -16,6 +19,9 @@ function App() {
 
         <Route path={ROUTES.HOME.path} element={<MainLayout />} >
           <Route index element={<Home />} />
+          <Route path={ROUTES.ITEMS.path} element={<Item />} />
+          <Route path={ROUTES.ESTOQUE.path} element={<Estoque />} />
+          <Route path={ROUTES.DESPESAS.path} element={<Despesa />} />
           <Route path={ROUTES.SETTINGS.path} element={<p>Settings</p>} />
         </Route>
     </Routes>
