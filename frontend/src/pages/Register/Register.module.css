@@ -1,0 +1,180 @@
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap');
+
+.root {
+    min-height: 100vh;
+    display: flex;
+    font-family: 'Barlow', sans-serif;
+    background-color: #1a1a1a;
+    overflow: hidden;
+}
+
+.left {
+    flex: 1;
+    background-color: #111111;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px;
+    position: relative;
+    overflow: hidden;
+}
+
+.left::before {
+    content: '';
+    position: absolute;
+    top: -120px; left: -120px;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,90,0,0.12) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.left::after {
+    content: '';
+    position: absolute;
+    bottom: -80px; right: -80px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,90,0,0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.gridBg {
+    position: absolute; inset: 0;
+    background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+}
+
+.brand { position: relative; z-index: 1; text-align: center; }
+
+.logoMark {
+    width: 72px; height: 72px;
+    background: var(--primary-color);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 24px;
+}
+
+.logoMark svg { width: 40px; height: 40px; }
+
+.brandName {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 36px; font-weight: 700;
+    color: #ffffff; letter-spacing: 1px;
+    line-height: 1; margin-bottom: 6px;
+}
+
+.brandName span { color: var(--primary-color); }
+
+.brandSub {
+    font-size: 13px; color: #666;
+    letter-spacing: 2px; text-transform: uppercase; font-weight: 500;
+}
+
+.divider {
+    width: 40px; height: 2px;
+    background: var(--primary-color);
+    margin: 32px auto; border-radius: 2px;
+}
+
+.tagline {
+    font-size: 15px; color: #888;
+    line-height: 1.7; max-width: 260px; text-align: center;
+}
+
+.right {
+    width: 480px;
+    background-color: #1e1e1e;
+    display: flex; align-items: center; justify-content: center;
+    padding: 48px 56px;
+    border-left: 1px solid #2a2a2a;
+}
+
+.formBox { width: 100%; }
+
+.formTitle {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px; font-weight: 700;
+    color: #ffffff; margin-bottom: 6px; letter-spacing: 0.5px;
+}
+
+.formDesc { font-size: 14px; color: #666; margin-bottom: 28px; }
+
+.field { margin-bottom: 16px; }
+
+.label {
+    display: block; font-size: 12px; font-weight: 600;
+    color: #888; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 8px;
+}
+
+.input {
+    width: 100%;
+    background: #262626; border: 1px solid #333;
+    border-radius: 10px; padding: 13px 16px;
+    font-size: 15px; color: #fff;
+    font-family: 'Barlow', sans-serif; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.input::placeholder { color: #444; }
+
+.input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255,90,0,0.12);
+}
+
+.inputWrapper { position: relative; }
+
+.inputIcon {
+    position: absolute; right: 14px; top: 50%;
+    transform: translateY(-50%);
+    color: #444; cursor: pointer; font-size: 18px;
+    user-select: none; transition: color 0.2s;
+}
+
+.inputIcon:hover { color: #888; }
+.inputWithIcon { padding-right: 44px; }
+
+.btn {
+    width: 100%; padding: 14px;
+    background: var(--primary-color); color: #fff;
+    border: none; border-radius: 10px;
+    font-size: 15px; font-weight: 600;
+    font-family: 'Barlow', sans-serif;
+    letter-spacing: 0.5px; cursor: pointer;
+    margin-top: 20px;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn:hover { background: var(--primary-hover); }
+.btn:active { transform: scale(0.99); }
+
+.loginLink {
+    margin-top: 20px; text-align: center;
+    font-size: 13px; color: #666;
+}
+
+.loginLink a {
+    color: var(--primary-color); text-decoration: none;
+    font-weight: 600; opacity: 0.9;
+    transition: opacity 0.2s;
+}
+
+.loginLink a:hover { opacity: 1; }
+
+.footer {
+    margin-top: 24px; text-align: center;
+    font-size: 12px; color: #444;
+}
+
+@media (max-width: 700px) {
+    .root { flex-direction: column; }
+    .left { padding: 40px 24px; min-height: auto; }
+    .right { width: 100%; padding: 40px 24px; border-left: none; border-top: 1px solid #2a2a2a; }
+}

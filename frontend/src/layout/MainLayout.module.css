@@ -1,0 +1,49 @@
+.mainLayout {
+    display: flex;
+    height: 100vh;
+    height: 100dvh;
+    width: 100vw;
+    overflow: hidden;
+    background-color: var(--main-background);
+}
+
+.mainInner {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    background-color: transparent;
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    transition: margin-left 0.3s ease;
+}
+
+.contentExpanded {
+    margin-left: 286px;
+}
+
+.contentCollapsed {
+    margin-left: 91px;
+}
+
+@media (max-width: 768px) {
+    .contentExpanded,
+    .contentCollapsed {
+        margin-left: 0;
+    }
+}
+
+@media (min-width: 769px) {
+    .contentExpanded {
+        margin-left: 286px;
+    }
+
+    .contentCollapsed {
+        margin-left: 91px;
+    }
+}
