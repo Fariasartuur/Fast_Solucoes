@@ -29,6 +29,11 @@ export const ROUTES = {
         name: 'Items',
         icon: 'inventory'
     },
+    SERVICOS: {
+        path: '/servicos',
+        name: 'Serviços',
+        icon: 'build'
+    },
     SETTINGS: {
         path: '/settings',
         name: 'Settings',

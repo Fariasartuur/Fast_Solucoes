@@ -2,6 +2,7 @@ import Table from "../../components/Table/Table.jsx";
 import { useEffect } from "react";
 import { useItemStore } from "../../store/useItemStore.js";
 import { useEstoqueStore } from "../../store/useEstoqueStore.js";
+import { ESTOQUE_ENDPOINT } from "../../constants/apiUrl.constants.js";
 
 const Estoque = () => {
     const { items, fetchItems } = useItemStore();
@@ -21,14 +22,14 @@ const Estoque = () => {
     });
 
     const columns = [
-        { header: "Nome Item", accessor: "nome_item" },
-        { header: "Produto", accessor: "produto" },
-        { header: "Quantidade", accessor: "quantidade" }
+        { header: "Nome Item",   accessor: "nome_item",  sortKey: "name"     },
+        { header: "Produto",     accessor: "produto"                          },
+        { header: "Quantidade",  accessor: "quantidade", sortKey: "quantity"  },
     ];
 
     return (
         <div style={{ paddingRight: '15px' }}>
-            <Table columns={columns} data={dadosFormatados} />
+            <Table columns={columns} data={dadosFormatados} onRefresh={fetchEstoque} url={ESTOQUE_ENDPOINT} />
         </div>
     );
 }

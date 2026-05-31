@@ -1,28 +1,28 @@
-import { useEntityActions } from "../../hooks/useEntityActions";
-import { useItemStore } from "../../store/useItemStore.js";
-import style from "./Item.module.css"
-import { ITEM_ENDPOINT } from "../../constants/apiUrl.constants.js";
+import { useEntityActions } from "../../hooks/useEntityActions.js";
+import { useServicoStore } from "../../store/useServicoStore.js";
+import style from "./Servico.module.css"
+import { SERVICO_ENDPOINT } from "../../constants/apiUrl.constants.js";
 
-const ItemAction = ({ item }) => {
-    const { fetchItems } = useItemStore();
+const ServicoAction = ({ servico }) => {
+    const { fetchServicos } = useServicoStore();
 
     const {
         isEditing, isSaving, formData,
         toggleEditing, handleChange, handleDelete, handleEdit
     } = useEntityActions(
         {
-            categoria: item.categoria,
-            nome_item: item.nome_item,
-            data_inscricao: item.data_inscricao,
-            modelo: item.modelo
+            contratante: servico.contratante,
+            data: servico.data,
+            valor: servico.valor,
+            tipo: servico.tipo
         },
-        "Item"
+        "Servico"
     );
 
     const onSave = async (e) => {
         e.preventDefault();
 
-        await handleEdit(ITEM_ENDPOINT, item.id_item, fetchItems);
+        await handleEdit(SERVICO_ENDPOINT, servico.id_registro_servico, fetchServicos);
     };
 
     const formatarDataBR = (dataStr) => {
@@ -42,69 +42,68 @@ const ItemAction = ({ item }) => {
             {isEditing ? (
                 <form id="edit-item-form" onSubmit={onSave} className={style.form}>
                     <h1 className={style.titulo}>
-                        Editando: {item.nome_item}
+                        Editando: {servico.nome_item}
                     </h1>
 
                     <label className={style.label}>Nome:</label>
                     <input
-                        name="nome_item"
+                        name="contratante"
                         type="text"
-                        value={formData.nome_item}
+                        value={formData.contratante}
                         onChange={handleChange}
                         className={style.input}
                         placeholder="Nome"
                         required
                     />
 
-                    <label className={style.label}>Categoria:</label>
+                    <label className={style.label}>Data:</label>
                     <input
-                        name="categoria"
-                        type="text"
-                        value={formData.categoria}
-                        onChange={handleChange}
-                        className={style.input}
-                        placeholder="Categoria"
-                        required
-                    />
-
-                    <label className={style.label}>Modelo:</label>
-                    <input
-                        name="modelo"
-                        type="text"
-                        value={formData.modelo}
-                        onChange={handleChange}
-                        className={style.input}
-                        placeholder="Modelo"
-                    />
-
-                    <label className={style.label}>Data de Inscrição:</label>
-                    <input
-                        name="data_inscricao"
+                        name="data"
                         type="date"
                         value={
-                            formData.data_inscricao?.includes('/')
-                                ? formData.data_inscricao.split('/').reverse().join('-')
-                                : formData.data_inscricao
+                            formData.data?.includes('/')
+                                ? formData.data.split('/').reverse().join('-')
+                                : formData.data
                         }
                         onChange={handleChange}
                         className={style.input}
                     />
+
+                    <label className={style.label}>Valor:</label>
+                    <input
+                        name="valor"
+                        type="number"
+                        value={formData.valor}
+                        onChange={handleChange}
+                        className={style.input}
+                        placeholder="Valor"
+                    />
+
+                    <label className={style.label}>Tipo:</label>
+                    <input
+                        name="tipo"
+                        type="text"
+                        value={formData.tipo}
+                        onChange={handleChange}
+                        className={style.input}
+                        placeholder="Tipo"
+                    />
                 </form>
             ) : (
                 <div className={style.info}>
-                    <h1 className={style.titulo}>{item.nome_item}</h1>
+                    <h1 className={style.titulo}>{servico.contratante}</h1>
 
                     <label className={style.label}>ID do Registro:</label>
-                    <p className={style.tipo}>{item.id_item}</p>
+                    <p className={style.tipo}>{servico.id_registro_servico}</p>
 
-                    <label className={style.label}>Categoria:</label>
-                    <p className={style.tipo}>{item.categoria}</p>
+                    <label className={style.label}>Data:</label>
+                    <p className={style.tipo}>{formatarDataBR(servico.data)}</p>
 
-                    <label className={style.label}>Modelo:</label>
-                    <p className={style.tipo}>{item.modelo || "N/A"}</p>
+                    <label className={style.label}>Valor:</label>
+                    <p className={style.tipo}>{servico.valor}</p>
 
-                    <label className={style.label}>Data de Inscrição:</label>
-                    <p className={style.tipo}>{formatarDataBR(item.data_inscricao)}</p>
+                    <label className={style.label}>Tipo:</label>
+                    <p className={style.tipo}>{servico.tipo || "N/A"}</p>
                 </div>
             )}
 
@@ -116,7 +115,7 @@ const ItemAction = ({ item }) => {
                 {!isEditing && (
                     <button
                         className={style.deleteBtnAction}
-                        onClick={() => handleDelete(ITEM_ENDPOINT, item.id_item, item.nome_item, fetchItems)}
+                        onClick={() => handleDelete(SERVICO_ENDPOINT, servico.id_registro_servico, servico.contratante, fetchServicos)}
                         disabled={isSaving}
                     >
                         Excluir
@@ -138,4 +137,4 @@ const ItemAction = ({ item }) => {
     );
 };
 
-export default ItemAction;
+export default ServicoAction;

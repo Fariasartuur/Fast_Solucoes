@@ -1,6 +1,7 @@
 import { useEntityActions } from "../../hooks/useEntityActions";
 import { useDespesaStore } from "../../store/useDespesaStore";
 import style from "./Despesa.module.css"
+import { DESPESAS_ENDPOINT } from "../../constants/apiUrl.constants.js";
 
 const DespesaAction = ({ despesa }) => {
     const { fetchDespesas } = useDespesaStore();
@@ -22,7 +23,7 @@ const DespesaAction = ({ despesa }) => {
     const onSave = async (e) => {
         e.preventDefault();
 
-        await handleEdit("http://localhost:3333/despesas", despesa.id_despesa_variada, fetchDespesas);
+        await handleEdit(DESPESAS_ENDPOINT, despesa.id_despesa_variada, fetchDespesas);
     };
 
     const formatarDataBR = (dataStr) => {
@@ -70,6 +71,7 @@ const DespesaAction = ({ despesa }) => {
                         onChange={handleChange}
                         className={style.input}
                         placeholder="Valor"
+                        required
                     />
 
                     <label className={style.label}>Status:</label>
@@ -80,14 +82,18 @@ const DespesaAction = ({ despesa }) => {
                         className={style.select}
                     >
                         <option value="Pendente">Pendente</option>
-                        <option value="Pago">Pago</option>
+                        <option value="Paga">Paga</option>
                     </select>
 
                     <label className={style.label}>Data:</label>
                     <input
                         name="data"
                         type="date"
-                        value={formData.data.split('/').reverse().join('-')}
+                        value={
+                            formData.data?.includes('/')
+                                ? formData.data.split('/').reverse().join('-')
+                                : formData.data
+                        }
                         onChange={handleChange}
                         className={style.input}
                     />
@@ -122,7 +128,7 @@ const DespesaAction = ({ despesa }) => {
                 {!isEditing && (
                     <button
                         className={style.deleteBtn}
-                        onClick={() => handleDelete("http://localhost:3333/despesas", despesa.id_despesa_variada, despesa.nome_despesa, fetchDespesas)}
+                        onClick={() => handleDelete(DESPESAS_ENDPOINT, despesa.id_despesa_variada, despesa.nome_despesa, fetchDespesas)}
                         disabled={isSaving}
                     >
                         Excluir

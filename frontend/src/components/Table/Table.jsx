@@ -7,24 +7,27 @@ import { useModalStore } from '../../store/useModalStore.js';
 import { useDespesaStore } from "../../store/useDespesaStore.js";
 import { useEstoqueStore } from "../../store/useEstoqueStore.js";
 import { useItemStore } from "../../store/useItemStore.js";
+import { useEntityActions } from "../../hooks/useEntityActions.js";
 
-const Table = ({ columns, data }) => {
+const Table = ({ columns, data, onRefresh, url }) => {
     const location = useLocation();
-    
-    const [isFilterOpen, setIsFilterOpen] = useState(false);
+    const { handleDelete } = useEntityActions({}, "esse registro");
+
     const [activeFilters, setActiveFilters] = useState({});
     const [searchTerm, setSearchTerm] = useState("");
+    const [sortConfig, setSortConfig] = useState({ key: 'date', dir: 'desc' });
 
     const openActions = useModalStore((state) => state.openActions);
     const openItem = useModalStore((state) => state.openItem);
     const openEstoque = useModalStore((state) => state.openEstoque);
     const openDespesa = useModalStore((state) => state.openDespesa);
+    const openServico = useModalStore((state) => state.openServico);
 
     const despesaLoad = useDespesaStore((state) => state.loading);
     const estoqueLoad = useEstoqueStore((state) => state.loading);
     const itemLoad = useItemStore((state) => state.loading);
 
-    if(despesaLoad || estoqueLoad || itemLoad) {
+    if (despesaLoad || estoqueLoad || itemLoad) {
         return <div className={style.loading}>Carregando...</div>;
     }
 
@@ -32,20 +35,47 @@ const Table = ({ columns, data }) => {
         [ROUTES.ITEMS.path]: <button onClick={openItem} className={style.addBtn}>Novo Item</button>,
         [ROUTES.ESTOQUE.path]: <button onClick={openEstoque} className={style.addBtn}>Novo Estoque</button>,
         [ROUTES.DESPESAS.path]: <button onClick={openDespesa} className={style.addBtn}>Nova Despesa</button>,
+        [ROUTES.SERVICOS.path]: <button onClick={openServico} className={style.addBtn}>Novo Serviço</button>,
+    };
+
+    const handleSort = (key) => {
+        setSortConfig(prev => ({
+            key,
+            dir: prev.key === key && prev.dir === 'desc' ? 'asc' : 'desc'
+        }));
+    };
+
+    const handleDeleteClick = async (row) => {
+        const idKey = Object.keys(row).find(key => key.includes('id'));
+        if (!idKey) {
+            alert("ID do registro não encontrado.");
+            return;
+        }
+        await handleDelete(url, row[idKey],  "Teste", onRefresh);
+    };
+
+    const SortIcon = ({ colKey }) => {
+        if (sortConfig.key !== colKey) {
+            return <span className={style.sortIcon}>↕</span>;
+        }
+        return (
+            <span className={`${style.sortIcon} ${style.sortActive}`}>
+                {sortConfig.dir === 'asc' ? '↑' : '↓'}
+            </span>
+        );
     };
 
     const filteredData = data.filter(row => {
         const searchMatch = Object.entries(row).some(([key, value]) => {
             if (key.includes('id')) return false;
-
             return String(value)
                 .toLowerCase()
                 .includes(searchTerm.toLowerCase());
         });
 
         const categoryMatch = activeFilters.categoria
-        ? String(row.categoria || "").toLowerCase() === activeFilters.categoria.toLowerCase()
-        : true;
+            ? String(row.categoria || "").toLowerCase() === activeFilters.categoria.toLowerCase()
+            : true;
 
         const statusMatch = activeFilters.status
             ? String(row.status || "").toLowerCase() === activeFilters.status.toLowerCase()
@@ -54,34 +84,28 @@ const Table = ({ columns, data }) => {
         return searchMatch && statusMatch && categoryMatch;
 
     }).sort((a, b) => {
-        if (activeFilters.sort === 'name') {
+        const { key, dir } = sortConfig;
+        let result = 0;
+
+        if (key === 'name') {
             const nameA = a.nome_item || a.nome_despesa || a.nome || "";
             const nameB = b.nome_item || b.nome_despesa || b.nome || "";
-            return nameA.localeCompare(nameB);
-        }
-
-        if (activeFilters.sort === 'date') {
+            result = nameA.localeCompare(nameB);
+        } else if (key === 'date') {
             const dateA = new Date(a.data_inscricao || a.data || 0);
             const dateB = new Date(b.data_inscricao || b.data || 0);
-            return dateB - dateA;
+            result = dateB - dateA;
+        } else if (key === 'value') {
+            result = (b.valor || 0) - (a.valor || 0);
+        } else if (key === 'quantity') {
+            result = (b.quantidade || 0) - (a.quantidade || 0);
         }
 
-        if (activeFilters.sort === 'value') {
-            return (a.valor || 0) - (b.valor || 0);
-        }
-
-        if(activeFilters.sort === 'quantity') {
-            return (a.quantidade || 0) - (b.quantidade || 0);
-        }
-
-        return 0;
+        return dir === 'asc' ? result : -result;
     });
 
-    const uniqueStatus = [...new Set(data.map(item => item.status || item.active).filter(Boolean))];
-    const uniqueCategories = [...new Set(data.map(item => item.categoria).filter(Boolean))];
-
     return (
-        <div className="overflow-x-auto rounded-lg border border-emerald-600 shadow-sm">
+        <div>
             <div className={style.opcoes}>
                 <input
                     type="search"
@@ -92,10 +116,14 @@ const Table = ({ columns, data }) => {
                 />
                 <div className={style.botoes}>
                     <button
-                        onClick={() => setIsFilterOpen(!isFilterOpen)}
-                        className={style.filterButton}
+                        onClick={() => {
+                            setSearchTerm("");
+                            setActiveFilters({ status: "", categoria: "" });
+                            setSortConfig({ key: 'date', dir: 'desc' });
+                        }}
+                        className={style.clearButton}
                     >
-                        Filtros
+                        Limpar Filtros &times;
                     </button>
 
                     {headerButton[location.pathname] && (
@@ -103,76 +131,8 @@ const Table = ({ columns, data }) => {
                             {headerButton[location.pathname]}
                         </div>
                     )}
-
                 </div>
             </div>
-
-            {isFilterOpen && (
-                <div className={style.filterBar}>
-                    {uniqueStatus.length > 0 &&
-                        <div className={style.filterGroup}>
-                            <label className={style.label}>Status</label>
-                            <select
-                                value={activeFilters.status || ""}
-                                onChange={(e) => setActiveFilters({ ...activeFilters, status: e.target.value })}
-                                className={style.select}
-                            >
-                                <option value="">Todos</option>
-                                {uniqueStatus.map((status, index) => (
-                                    <option key={index} value={status}>
-                                        {String(status).charAt(0).toUpperCase() + String(status).slice(1)}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    }
-
-                    {uniqueCategories.length > 0 && (
-                        <div className={style.filterGroup}>
-                            <label className={style.label}>Categoria</label>
-                            <select
-                                value={activeFilters.categoria || ""}
-                                onChange={(e) => setActiveFilters({ ...activeFilters, categoria: e.target.value })}
-                                className={style.select}
-                            >
-                                <option value="">Todas</option>
-                                {uniqueCategories.map((cat, index) => (
-                                    <option key={index} value={cat}>
-                                        {String(cat)}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
-
-
-                    <div className={style.filterGroup}>
-                        <label className={style.label}>Ordenar por</label>
-                        <select
-                            value={activeFilters.sort || "name"}
-                            onChange={(e) => setActiveFilters({ ...activeFilters, sort: e.target.value })}
-                            className={style.select}
-                        >
-                            <option value="name">Nome (A-Z)</option>
-                            <option value="date">Data Recente</option>
-                            <option value="quantity">Quantidade</option>
-                        </select>
-                    </div>
-
-                    <div className={style.filterActions}>
-                        <button
-                            onClick={() => { setSearchTerm(""); setActiveFilters({ status: "", sort: "name" }) }}
-                            className={style.clearButton}
-                        >
-                            Limpar tudo
-                        </button>
-
-                        <button onClick={() => setIsFilterOpen(false)} className={style.closeButton}>
-                            <span className="material-symbols-rounded">close</span>
-                        </button>
-                    </div>
-                </div>
-            )}
 
             <br />
 
@@ -180,11 +140,20 @@ const Table = ({ columns, data }) => {
                 <thead className={style.thead}>
                     <tr>
                         {columns.map((col, index) => (
-                            <th key={index} className={style.th}>
-                                {col.header}
+                            <th
+                                key={index}
+                                className={`${style.th} ${col.sortKey ? style.thSortable : ''}`}
+                                onClick={() => col.sortKey && handleSort(col.sortKey)}
+                            >
+                                <span className={style.thInner}>
+                                    {col.header}
+                                    {col.sortKey && <SortIcon colKey={col.sortKey} />}
+                                </span>
                             </th>
                         ))}
-                        <th className={style.th}>Ações</th>
+                        <th className={style.th}>
+                            <span className={style.thInner}>Ações</span>
+                        </th>
                     </tr>
                 </thead>
                 <tbody className={style.tbody}>
@@ -198,8 +167,9 @@ const Table = ({ columns, data }) => {
                                             : row[col.accessor]}
                                     </td>
                                 ))}
-                                <td className={style.actionsTd} onClick={() => openActions(row)}>
-                                    <span className="material-symbols-rounded">more_horiz</span>
+                                <td className={style.actionsTd} >
+                                    <span onClick={() => openActions(row)} className={`material-symbols-rounded ${style.actionIcon}`}>more_horiz</span>
+                                    <span onClick={() => handleDeleteClick(row)} className={`material-symbols-rounded ${style.deleteIcon}`}>delete</span>
                                 </td>
                             </tr>
                         ))

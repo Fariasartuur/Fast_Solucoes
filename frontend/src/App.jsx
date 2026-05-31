@@ -9,6 +9,7 @@ import Register from './pages/Register/Register.jsx';
 import Item from './pages/Item/Item.jsx';
 import Estoque from './pages/Estoque/Estoque.jsx';
 import Despesa from './pages/Despesa/Despesa.jsx';
+import Servico from './pages/Servico/Servico.jsx';
 
 function App() {
 
@@ -22,6 +23,7 @@ function App() {
           <Route path={ROUTES.ITEMS.path} element={<Item />} />
           <Route path={ROUTES.ESTOQUE.path} element={<Estoque />} />
           <Route path={ROUTES.DESPESAS.path} element={<Despesa />} />
+          <Route path={ROUTES.SERVICOS.path} element={<Servico />} />
           <Route path={ROUTES.SETTINGS.path} element={<p>Settings</p>} />
         </Route>
     </Routes>

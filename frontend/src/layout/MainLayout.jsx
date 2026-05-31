@@ -12,6 +12,7 @@ import Modal from '../components/Modal/Modal.jsx';
 import ItemModal from '../pages/Item/ItemModal.jsx';
 import EstoqueModal from '../pages/Estoque/EstoqueModal.jsx';
 import DespesaModal from '../pages/Despesa/DespesaModal.jsx';
+import ServicoModal from '../pages/Servico/ServicoModal.jsx';
 
 import TableActions from '../components/Table/TableActions.jsx';
 
@@ -23,7 +24,8 @@ const MainLayout = () => {
         isItemOpen, closeItem,
         isEstoqueOpen, closeEstoque,
         isDespesaOpen, closeDespesa,
-        isActionsOpen, closeActions
+        isActionsOpen, closeActions,
+        isServicoOpen, closeServico
     } = useModalStore();
 
     const title = Object.values(ROUTES).find(
@@ -55,6 +57,10 @@ const MainLayout = () => {
 
             <Modal isOpen={isDespesaOpen} onClose={closeDespesa}>
                 <DespesaModal />
+            </Modal>
+
+            <Modal isOpen={isServicoOpen} onClose={closeServico}>
+                <ServicoModal />
             </Modal>
         </div>
     );

@@ -24,10 +24,11 @@ export const useDespesaStore = create((set) => ({
                 body: JSON.stringify(novaDespesa)
             });
 
-            if (response.ok) {
-                const despesaAtualizada = await response.json();
-                set((state) => ({ despesas: [...state.despesas, despesaAtualizada] }));
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}`);
             }
+
+            await useDespesaStore.getState().fetchDespesas();
         } catch (error) {
             console.error("Erro ao adicionar despesa:", error);
         }

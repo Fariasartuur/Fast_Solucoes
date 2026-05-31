@@ -57,6 +57,7 @@ const DespesaModal = () => {
                         onChange={handleChange}
                         placeholder="Nome da Despesa"
                         className={style.input}
+                        required
                     />
                     <input
                         type="text"
@@ -65,6 +66,7 @@ const DespesaModal = () => {
                         onChange={handleChange}
                         placeholder="Tipo da Despesa"
                         className={style.input}
+                        required
                     />
                     <input
                         type="number"
@@ -73,6 +75,7 @@ const DespesaModal = () => {
                         onChange={handleChange}
                         placeholder="Valor"
                         className={style.input}
+                        required
                     />
                     <input
                         type="date"
@@ -81,15 +84,19 @@ const DespesaModal = () => {
                         onChange={handleChange}
                         placeholder="Data"
                         className={style.input}
+                        required
                     />
-                    <input
-                        type="text"
+                    <select
                         name="status"
                         value={formData.status}
                         onChange={handleChange}
-                        placeholder="Status"
                         className={style.input}
-                    />
+                        required
+                    >
+                        <option value="">Selecione o Status</option>
+                        <option value="Pendente">Pendente</option>
+                        <option value="Paga">Paga</option>
+                    </select>
                 </div>
 
                 <button className={style.saveBtn} type="submit" disabled={loading}>

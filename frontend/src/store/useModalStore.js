@@ -8,6 +8,7 @@ export const useModalStore = create((set) => ({
     isItemOpen: false,
     isEstoqueOpen: false,
     isDespesaOpen: false,
+    isServicoOpen: false,
 
     openItem: () => set({ isItemOpen: true }),
     closeItem: () => set({ isItemOpen: false }),
@@ -20,6 +21,9 @@ export const useModalStore = create((set) => ({
 
     openActions: (item) => set({ selectedItem: item, isActionsOpen: true }),
     closeActions: () => set({ selectedItem: null, isActionsOpen: false }),
+
+    openServico: () => set({ isServicoOpen: true }),
+    closeServico: () => set({ isServicoOpen: false }),
 
 
 }))

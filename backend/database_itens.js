@@ -18,12 +18,11 @@ export class Database_itens {
     }
 
     async create(item) {
-        const itemid = randomUUID();
         const { nome_item, modelo, data_inscricao, categoria } = item;
 
         await sql.query(
-            'INSERT INTO tb_item (id_item, nome_item, modelo, data_inscricao, categoria) VALUES (?, ?, ?, ?, ?)',
-            [itemid, nome_item, modelo, data_inscricao, categoria]
+            'INSERT INTO tb_item (nome_item, modelo, data_inscricao, categoria) VALUES (?, ?, ?, ?)',
+            [nome_item, modelo, data_inscricao, categoria]
         );
     }
 

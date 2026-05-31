@@ -24,13 +24,11 @@ export const useItemStore = create((set) => ({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(itemData),
             });
-            if (response.ok) {
-                const newItem = await response.json();
-                set((state) => ({ items: [...state.items, newItem], loading: false }));
-            } else {
-                console.error("Erro ao adicionar item:", response.statusText);
-                set({ loading: false });
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}`);
             }
+
+            await useItemStore.getState().fetchItems();
         } catch (error) {
             console.error("Erro ao adicionar item:", error);
             set({ loading: false });

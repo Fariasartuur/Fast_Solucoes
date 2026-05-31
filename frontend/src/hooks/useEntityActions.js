@@ -21,8 +21,6 @@ export const useEntityActions = (initialData, entityName) => {
             finalValue = value;
         }
 
-        console.log(`Alterando campo: ${name} para:`, finalValue);
-
         setFormData(prev => ({
             ...prev,
             [name]: finalValue
@@ -33,10 +31,22 @@ export const useEntityActions = (initialData, entityName) => {
     const handleEdit = async (url, id, refreshFn) => {
         setIsSaving(true);
         try {
+            const payload = Object.fromEntries(
+                Object.entries(formData).map(([key, value]) => {
+                    if (
+                        typeof value === 'string' &&
+                        /^\d{2}\/\d{2}\/\d{4}$/.test(value)
+                    ) {
+                        return [key, value.split('/').reverse().join('-')];
+                    }
+
+                    return [key, value];
+                })
+            );
             const response = await fetch(`${url}/${id}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify(payload)
             });
 
             if (response.ok) {
@@ -55,7 +65,7 @@ export const useEntityActions = (initialData, entityName) => {
     };
 
     // Ideal para lidar com o DELETE
-    const handleDelete = async (url, id, name, refreshFn) => {
+    const handleDelete = async (url, id, name = "", refreshFn = null) => {
         if (!window.confirm(`Tem certeza que deseja excluir ${entityName}: ${name}?`)) return;
 
         try {

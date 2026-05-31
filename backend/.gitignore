@@ -1,9 +1,0 @@
-# Dependências (Nunca subir)
-node_modules/
-
-# Variáveis de ambiente (Segurança)
-.env
-
-# Logs e arquivos de sistema
-npm-debug.log*
-.DS_Store

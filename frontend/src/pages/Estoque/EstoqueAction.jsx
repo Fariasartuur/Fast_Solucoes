@@ -2,6 +2,7 @@ import { useEntityActions } from "../../hooks/useEntityActions";
 import { useEstoqueStore } from "../../store/useEstoqueStore.js";
 import { useItemStore } from "../../store/useItemStore.js";
 import style from "./Estoque.module.css"
+import { ESTOQUE_ENDPOINT } from "../../constants/apiUrl.constants.js";
 
 const EstoqueAction = ({ estoque }) => {
     const { fetchEstoque } = useEstoqueStore();
@@ -21,10 +22,9 @@ const EstoqueAction = ({ estoque }) => {
     const onSave = async (e) => {
         e.preventDefault();
 
-        await handleEdit("http://localhost:3333/estoque", estoque.id_estoque, fetchEstoque);
+        await handleEdit(ESTOQUE_ENDPOINT, estoque.id_estoque, fetchEstoque);
     };
 
-    console.log(estoque);
     const itemAtual = items.find(i => i.id_item === formData.id_item);
     return(
         <div className={style.card}>
@@ -65,7 +65,7 @@ const EstoqueAction = ({ estoque }) => {
                 {!isEditing && (
                     <button
                         className={style.deleteBtn}
-                        onClick={() => handleDelete("http://localhost:3333/estoque", estoque.id_estoque, estoque.nome_item, fetchEstoque)}
+                        onClick={() => handleDelete(ESTOQUE_ENDPOINT, estoque.id_estoque, estoque.nome_item, fetchEstoque)}
                         disabled={isSaving}
                     >
                         Excluir

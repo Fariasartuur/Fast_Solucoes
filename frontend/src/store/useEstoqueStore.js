@@ -24,10 +24,11 @@ export const useEstoqueStore = create((set) => ({
                 body: JSON.stringify(novoEstoque)
             });
 
-            if (response.ok) {
-                const estoqueAtualizado = await response.json();
-                set((state) => ({ estoque: [...state.estoque, estoqueAtualizado] }));
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}`);
             }
+
+            await useEstoqueStore.getState().fetchEstoque();
         } catch (error) {
             console.error("Erro ao adicionar estoque:", error);
         }

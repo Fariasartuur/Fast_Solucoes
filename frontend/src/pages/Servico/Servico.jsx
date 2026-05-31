@@ -1,23 +1,23 @@
 import Table from "../../components/Table/Table.jsx";
 import { useEffect } from "react";
-import { useDespesaStore } from "../../store/useDespesaStore.js";
-import { DESPESAS_ENDPOINT } from "../../constants/apiUrl.constants.js";
+import { useServicoStore } from "../../store/useServicoStore.js";
+import { SERVICO_ENDPOINT } from "../../constants/apiUrl.constants.js";
 
 const sortKeyMap = {
-    data: 'date',
-    valor: 'value',
-    nome_despesa: 'name',
+    data_inscricao: 'date',
+    nome_item: 'name',
 };
 
-const Despesa = () => {
-    const { despesas, fetchDespesas } = useDespesaStore();
+const Servico = () => {
+    const { servicos, fetchServicos } = useServicoStore();
 
     useEffect(() => {
-        if (despesas.length === 0) fetchDespesas();
-    }, [fetchDespesas, despesas.length]);
+        if (servicos.length === 0) fetchServicos();
+        
+    }, [fetchServicos, servicos.length]);
 
-    const columns = Object.keys(despesas[0] || {})
-        .filter(key => key !== 'id_despesa_variada' && key !== 'id_item')
+    const columns = Object.keys(servicos[0] || {})
+        .filter(key => key !== 'id_registro_servico')
         .map(key => ({
             header: key.replaceAll('_', ' ').charAt(0).toUpperCase() + key.replaceAll('_', ' ').slice(1),
             accessor: key === 'data'
@@ -31,9 +31,9 @@ const Despesa = () => {
 
     return (
         <div style={{ paddingRight: '15px' }}>
-            <Table columns={columns} data={despesas} onRefresh={fetchDespesas} url={DESPESAS_ENDPOINT} />
+            <Table columns={columns} data={servicos} onRefresh={fetchServicos} url={SERVICO_ENDPOINT} />
         </div>
     );
 }
 
-export default Despesa;
+export default Servico;

@@ -1,18 +1,18 @@
 import { useState } from "react";
 import { useModalStore } from "../../store/useModalStore.js";
-import { useItemStore } from "../../store/useItemStore.js";
-import style from "./Item.module.css";
+import { useServicoStore } from "../../store/useServicoStore.js";
+import style from "./Servico.module.css";
 
-const ItemModal = () => {
+const ServicoModal = () => {
     const [loading, setLoading] = useState(false);
-    const closeItem = useModalStore((state) => state.closeItem);
-    const { fetchItems, addItem } = useItemStore();
+    const closeServico = useModalStore((state) => state.closeServico);
+    const { fetchServicos, addServico } = useServicoStore();
 
     const [formData, setFormData] = useState({
-        nome_item: "",
-        modelo: "",
-        data_inscricao: "",
-        categoria: ""
+        contratante: "",
+        data: "",
+        valor: "",
+        tipo: ""
     });
 
     const handleChange = (e) => {
@@ -27,14 +27,14 @@ const ItemModal = () => {
         e.preventDefault();
         setLoading(true);
 
-        addItem(formData)
+        addServico(formData)
             .then(() => {
-                alert("Item criado com sucesso!");
-                fetchItems();
-                closeItem();
+                alert("Serviço criado com sucesso!");
+                fetchServicos();
+                closeServico();
             })
             .catch((error) => {
-                console.error("Erro ao criar item:", error);
+                console.error("Erro ao criar serviço:", error);
                 alert("Ocorreu um erro ao salvar. Tente novamente.");
             })
             .finally(() => setLoading(false));
@@ -43,43 +43,43 @@ const ItemModal = () => {
     return (
         <div className={style.container}>
             <div className={style.header}>
-                <h2 className={style.title}>Cadastrar Item</h2>
+                <h2 className={style.title}>Cadastrar Serviço</h2>
             </div>
             <form onSubmit={handleSubmit} className={style.form}>
                 <div className={style.grid}>
                     <input
                         type="text"
-                        name="nome_item"
-                        value={formData.nome_item}
+                        name="contratante"
+                        value={formData.contratante}
                         onChange={handleChange}
-                        placeholder="Nome do Item"
-                        className={style.input}
-                        required
-                    />
-                    <input
-                        type="text"
-                        name="modelo"
-                        value={formData.modelo}
-                        onChange={handleChange}
-                        placeholder="Modelo"
+                        placeholder="Nome do Contratante"
                         className={style.input}
                         required
                     />
                     <input
                         type="date"
-                        name="data_inscricao"
-                        value={formData.data_inscricao}
+                        name="data"
+                        value={formData.data}
                         onChange={handleChange}
-                        placeholder="Data de Inscrição"
+                        placeholder="Data"
+                        className={style.input}
+                        required
+                    />
+                    <input
+                        type="number"
+                        name="valor"
+                        value={formData.valor}
+                        onChange={handleChange}
+                        placeholder="Valor"
                         className={style.input}
                         required
                     />
                     <input
                         type="text"
-                        name="categoria"
-                        value={formData.categoria}
+                        name="tipo"
+                        value={formData.tipo}
                         onChange={handleChange}
-                        placeholder="Categoria"
+                        placeholder="Tipo"
                         className={style.input}
                         required
                     />
@@ -94,4 +94,4 @@ const ItemModal = () => {
 
 };
 
-export default ItemModal;
+export default ServicoModal;

@@ -9,7 +9,6 @@ const TableActions = ({page}) => {
     const selectedItem = useModalStore((state) => state.selectedItem);
 
     const renderContent = () => {
-        console.log(page);
         switch (page) {
             case ROUTES.ITEMS.path: return <ItemAction item={selectedItem}/>;
             case ROUTES.DESPESAS.path: return <DespesaAction despesa={selectedItem}/>;

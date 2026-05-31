@@ -1,0 +1,59 @@
+# --- Segurança (CRÍTICO) ---
+.env
+# Bloqueia qualquer arquivo de ambiente ou chaves que você venha a criar
+.env.*
+*.env
+*.key
+*.pem
+
+# --- Python & Cache ---
+__pycache__/
+.cache/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+
+# --- Backups e Temporários ---
+# Bloqueia os arquivos .bak que você mencionou
+*.bak
+*.sql
+*.zip
+*.tar.gz
+*.log
+
+# --- Docker & DB local ---
+# Caso você gere dumps do postgres na raiz
+*.dump
+.dockerignore
+
+# --- IDEs e Sistema ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+*.pub
+*_rsa
+known_hosts
+
+**/node_modules/
+*.cache
+dist/
+build/
+*.log
+*.bak
+*.zip
+*.tar.gz
+*.sql
+*.dump
+*.pem
+*.key
+*.mp3
+*.mp4
+
+# Logs e arquivos de sistema
+npm-debug.log*
+.DS_Store
