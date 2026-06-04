@@ -12,7 +12,7 @@
 }
 
 .sidebar.collapsed {
-  width: 85px;
+  width: 95px;
 }
 
 /* Header e Logo */
@@ -30,11 +30,8 @@
 }
 
 .logo {
-  color: var(--primary-color);
-  font-size: 1.5rem;
-  font-weight: bold;
-  font-family: 'Barlow Condensed', sans-serif;
-  letter-spacing: 1px;
+  width: 95px;
+  height: 95px;
 }
 
 /* Toggler */

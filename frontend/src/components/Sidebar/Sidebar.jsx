@@ -3,6 +3,8 @@ import { useRef, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes.constants.js';
 
+import logo from '../../../public/logo.png';
+
 const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     const routes = Object.keys(ROUTES);
     const noRoutes = ['LOGIN', 'REGISTER'];
@@ -40,7 +42,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
     return (
         <aside ref={sidebarRef} className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''}`}>
             <header className={styles.sidebarHeader}>
-                <h1 className={styles.logo}>FS</h1>
+                <img src={logo} alt="Logo" className={styles.logo} />
                 <button onClick={toggleSidebar} className={`${styles.sidebarToggler} ${styles.toggler}`}>
                     <span className="material-symbols-rounded">chevron_left</span>
                 </button>

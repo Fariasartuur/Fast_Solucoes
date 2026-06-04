@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { ROUTES } from '../../constants/routes.constants';
 
+import logo from '../../../public/logo.png';
+
 const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
@@ -22,10 +24,7 @@ const Login = () => {
                 <div className={styles.gridBg}></div>
                 <div className={styles.brand}>
                     <div className={styles.logoMark}>
-                        <svg viewBox="0 0 40 40" fill="none">
-                            <path d="M8 20L16 12L24 20L32 12" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M8 28L16 20L24 28L32 20" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.5"/>
-                        </svg>
+                        <img src={logo} alt="Logo" className={styles.logo} />
                     </div>
                     <div className={styles.brandName}>FAST <span>SOLUÇÕES</span></div>
                     <div className={styles.brandSub}>Sistema de Gestão</div>

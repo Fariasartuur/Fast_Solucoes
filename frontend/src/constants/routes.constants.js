@@ -34,9 +34,4 @@ export const ROUTES = {
         name: 'Serviços',
         icon: 'build'
     },
-    SETTINGS: {
-        path: '/settings',
-        name: 'Settings',
-        icon: 'settings'
-    },
 }

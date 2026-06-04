@@ -24,7 +24,6 @@ function App() {
           <Route path={ROUTES.ESTOQUE.path} element={<Estoque />} />
           <Route path={ROUTES.DESPESAS.path} element={<Despesa />} />
           <Route path={ROUTES.SERVICOS.path} element={<Servico />} />
-          <Route path={ROUTES.SETTINGS.path} element={<p>Settings</p>} />
         </Route>
     </Routes>
 

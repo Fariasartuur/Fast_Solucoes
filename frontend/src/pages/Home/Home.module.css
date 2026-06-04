@@ -42,17 +42,15 @@
 .logoMark {
     width: 44px;
     height: 44px;
-    background: var(--primary-color);
-    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
 }
 
-.logoMark svg {
-    width: 26px;
-    height: 26px;
+.logoMark img {
+    width: 80px;
+    height: 80px;
 }
 
 /* DESEMPENHO */
