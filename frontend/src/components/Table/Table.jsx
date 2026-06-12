@@ -9,6 +9,8 @@ import { useEstoqueStore } from "../../store/useEstoqueStore.js";
 import { useItemStore } from "../../store/useItemStore.js";
 import { useEntityActions } from "../../hooks/useEntityActions.js";
 
+import { uploadFile } from "../../services/uploadService.js";
+
 const Table = ({ columns, data, onRefresh, url }) => {
     const location = useLocation();
     const { handleDelete } = useEntityActions({}, "esse registro");
@@ -30,13 +32,6 @@ const Table = ({ columns, data, onRefresh, url }) => {
     if (despesaLoad || estoqueLoad || itemLoad) {
         return <div className={style.loading}>Carregando...</div>;
     }
-
-    const headerButton = {
-        [ROUTES.ITEMS.path]: <button onClick={openItem} className={style.addBtn}>Novo Item</button>,
-        [ROUTES.ESTOQUE.path]: <button onClick={openEstoque} className={style.addBtn}>Novo Estoque</button>,
-        [ROUTES.DESPESAS.path]: <button onClick={openDespesa} className={style.addBtn}>Nova Despesa</button>,
-        [ROUTES.SERVICOS.path]: <button onClick={openServico} className={style.addBtn}>Novo Serviço</button>,
-    };
 
     const handleSort = (key) => {
         setSortConfig(prev => ({
@@ -104,6 +99,84 @@ const Table = ({ columns, data, onRefresh, url }) => {
         return dir === 'asc' ? result : -result;
     });
 
+    const handleFileChange = async (e, type) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+            if (type === "item") {
+                await uploadFile({
+                    endpoint: "upload_item/",
+                    file,
+                    fieldName: "pdf_file",
+                });
+            }
+
+            if (type === "despesa") {
+                await uploadFile({
+                    endpoint: "upload_despesas/",
+                    file,
+                    fieldName: "pdf_file",
+                });
+            }
+
+            if (type === "nota") {
+                await uploadFile({
+                    endpoint: "upload_notafiscal/",
+                    file,
+                    fieldName: "xml_file",
+                });
+            }
+
+            onRefresh?.();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const headerButton = {
+        [ROUTES.ESTOQUE.path]: <button onClick={openEstoque} className={style.addBtn}>Novo Estoque</button>,
+        [ROUTES.ITEMS.path]: 
+            <>
+                <label className={style.uploadBtn}>
+                    Subir PDF
+                    <input
+                        type="file"
+                        hidden
+                        accept="application/pdf"
+                        onChange={(e) => handleFileChange(e, "item")}
+                    />
+                </label>
+                <button onClick={openItem} className={style.addBtn}>Novo Item</button>
+            </>,
+        [ROUTES.DESPESAS.path]: 
+            <>
+                <label className={style.uploadBtn}>
+                    Subir PDF
+                    <input
+                        type="file"
+                        hidden
+                        accept="application/pdf"
+                        onChange={(e) => handleFileChange(e, "despesa")}
+                    />
+                </label>
+                <button onClick={openDespesa} className={style.addBtn}>Nova Despesa</button>
+            </>,
+        [ROUTES.SERVICOS.path]:
+            <>
+                <label className={style.uploadBtn}>
+                    Subir XML
+                    <input
+                        type="file"
+                        hidden
+                        accept="application/xml"
+                        onChange={(e) => handleFileChange(e, "nota")}
+                    />
+                </label>
+                <button onClick={openServico} className={style.addBtn}>Novo Serviço</button>
+            </>,
+    };
+
     return (
         <div>
             <div className={style.opcoes}>
@@ -125,9 +198,9 @@ const Table = ({ columns, data, onRefresh, url }) => {
                     >
                         Limpar Filtros &times;
                     </button>
-
+                    
                     {headerButton[location.pathname] && (
-                        <div>
+                        <div className={style.headerButton}>
                             {headerButton[location.pathname]}
                         </div>
                     )}

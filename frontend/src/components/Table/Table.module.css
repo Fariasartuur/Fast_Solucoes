@@ -22,6 +22,12 @@
     height: 40px;
 }
 
+.headerButton {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
 .search {
     width: 50%;
     height: 40px;
@@ -244,6 +250,28 @@
     font-weight: 500;
     transition: 0.4s ease;
     max-height: 40px;
+}
+
+.uploadBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    color: var(--primary-color);
+    width: fit-content;
+    border: 2px solid var(--primary-color);
+    border-radius: 20px;
+    padding: 12px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.uploadBtn:hover {
+    background-color: var(--primary-color);
+    color: white;
 }
 
 .addBtn {
