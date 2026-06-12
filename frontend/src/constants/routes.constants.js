@@ -14,15 +14,15 @@ export const ROUTES = {
         name: 'Home',
         icon: 'home'
     },
-    DESPESAS: {
-        path: '/despesas',
-        name: 'Despesas',
-        icon: 'attach_money'
-    },
     ESTOQUE: {
         path: '/estoque',
         name: 'Estoque',
         icon: 'store'
+    },
+    DESPESAS: {
+        path: '/despesas',
+        name: 'Despesas',
+        icon: 'attach_money'
     },
     ITEMS: {
         path: '/items',
