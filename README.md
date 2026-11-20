@@ -30,35 +30,47 @@ Fast_Solucoes/
 │   ├── server.js
 │   ├── usuarios.js
 │   ├── servico.js
+│   ├── servico_item.js
 │   ├── estoque.js
 │   ├── item.js
 │   ├── despesas.js
 │   ├── registro_itens.js
+│   ├── prestador.js
+│   ├── pagamento.js
 │   ├── database_usuarios.js
 │   ├── database_servico.js
+│   ├── database_servico_item.js
 │   ├── database_estoque.js
 │   ├── database_itens.js
 │   ├── database_despesas.js
 │   ├── database_registro.js
+│   ├── database_prestador.js
 │   ├── package.json
 │   └── .env
 │
 ├── frontend/
 │   ├── public/
 │   ├── src/
-│   │   ├── assets/
 │   │   ├── components/
 │   │   ├── constants/
 │   │   ├── hooks/
 │   │   ├── layout/
 │   │   ├── pages/
+│   │   ├── services/
 │   │   ├── store/
+│   │   ├── utils/
 │   │   ├── App.jsx
 │   │   └── main.jsx
 │   │
 │   ├── package.json
 │   ├── vite.config.js
 │   └── index.html
+│
+├── docs/
+│   ├── fontes/
+│   ├── Documentacao_Banco_de_Dados.pdf
+│   ├── Documentacao_Alteracoes_Banco_de_Dados.pdf
+│   └── Documentacao_Melhorias.pdf
 │
 ├── .gitignore
 └── README.md
