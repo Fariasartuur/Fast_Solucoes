@@ -11,7 +11,9 @@ import { useEntityActions } from "../../hooks/useEntityActions.js";
 
 import { uploadFile } from "../../services/uploadService.js";
 
-const Table = ({ columns, data, onRefresh, url }) => {
+// statusOptions (opcional): [{ value, label }] exibe um filtro por status na barra da tabela.
+// extraActions (opcional): [{ icon, title(row), onClick(row) }] ícones extras na coluna "Ações".
+const Table = ({ columns, data, onRefresh, url, statusOptions, extraActions = [] }) => {
     const location = useLocation();
     const { handleDelete } = useEntityActions({}, "esse registro");
 
@@ -94,6 +96,9 @@ const Table = ({ columns, data, onRefresh, url }) => {
             result = (b.valor || 0) - (a.valor || 0);
         } else if (key === 'quantity') {
             result = (b.quantidade || 0) - (a.quantidade || 0);
+        } else if (key in a || key in b) {
+            // Ordenação numérica genérica pelo próprio campo (ex.: lucro, custo_pecas)
+            result = Number(b[key] || 0) - Number(a[key] || 0);
         }
 
         return dir === 'asc' ? result : -result;
@@ -188,6 +193,19 @@ const Table = ({ columns, data, onRefresh, url }) => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 <div className={style.botoes}>
+                    {statusOptions && (
+                        <select
+                            className={style.statusSelect}
+                            value={activeFilters.status || ""}
+                            onChange={(e) => setActiveFilters(prev => ({ ...prev, status: e.target.value }))}
+                            aria-label="Filtrar por status"
+                        >
+                            <option value="">Todos os status</option>
+                            {statusOptions.map(opcao => (
+                                <option key={opcao.value} value={opcao.value}>{opcao.label}</option>
+                            ))}
+                        </select>
+                    )}
                     <button
                         onClick={() => {
                             setSearchTerm("");
@@ -241,6 +259,16 @@ const Table = ({ columns, data, onRefresh, url }) => {
                                     </td>
                                 ))}
                                 <td className={style.actionsTd} >
+                                    {extraActions.map((acao) => (
+                                        <span
+                                            key={acao.icon}
+                                            onClick={() => acao.onClick(row)}
+                                            title={acao.title(row)}
+                                            className={`material-symbols-rounded ${style.actionIcon}`}
+                                        >
+                                            {acao.icon}
+                                        </span>
+                                    ))}
                                     <span onClick={() => openActions(row)} className={`material-symbols-rounded ${style.actionIcon}`}>more_horiz</span>
                                     <span onClick={() => handleDeleteClick(row)} className={`material-symbols-rounded ${style.deleteIcon}`}>delete</span>
                                 </td>

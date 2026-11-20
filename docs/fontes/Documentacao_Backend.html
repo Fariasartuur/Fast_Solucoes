@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Documentação do Backend</title>
+<link rel="stylesheet" href="estilo-docs.css">
+</head>
+<body>
+<div class="page">
+
+<h1>Documentação das Alterações no Backend</h1>
+<div class="meta">Sistema Fast Soluções · Node.js + Fastify 5 + MySQL 8 (mysql2) · 20/11/2026 · Visão geral em <code>Documentacao_Melhorias.pdf</code> · Banco em <code>Documentacao_Alteracoes_Banco_de_Dados.pdf</code></div>
+
+<p>Este documento descreve, para os integrantes do grupo, o que foi adicionado ou alterado no backend (<code>backend/</code>): arquivos, rotas da API com exemplos, regras de negócio, validações, tratamento de erros e transações. As rotas existentes que não aparecem aqui não foram alteradas.</p>
+
+<div class="sumario">
+<b>Conteúdo</b>
+<ol>
+  <li>Arquivos novos e alterados</li>
+  <li>Registro no servidor</li>
+  <li>Migrações do banco</li>
+  <li>Padrão de erros</li>
+  <li>Referência da API</li>
+  <li>Peças e estoque (transações)</li>
+  <li>Regras de pagamento</li>
+  <li>Dados do prestador</li>
+  <li>Testes realizados</li>
+  <li>Pontos de atenção</li>
+</ol>
+</div>
+
+<h2>1. Arquivos novos e alterados</h2>
+<p>O padrão do projeto foi mantido: um arquivo de <b>rotas</b> (<code>nome.js</code>) e uma classe de <b>acesso ao banco</b> (<code>database_nome.js</code>) por assunto.</p>
+<table class="info">
+  <tr><th style="width:30%">Arquivo</th><th style="width:12%">Situação</th><th>Responsabilidade</th></tr>
+  <tr><td><code>servico_item.js</code></td><td>Novo</td><td>Rotas das peças de um serviço. Exporta também <code>parseInteiroPositivo</code>.</td></tr>
+  <tr><td><code>database_servico_item.js</code></td><td>Novo</td><td>Regras de estoque em transação. Exporta <code>ServicoItemError</code>, <code>withTransaction</code>, <code>adicionarPeca</code>, <code>devolverTodasPecas</code> e a classe <code>Database_servico_item</code>.</td></tr>
+  <tr><td><code>pagamento.js</code></td><td>Novo</td><td>Validações de pagamento e datas: <code>parsePagamento</code>, <code>parseData</code>, <code>hoje</code>.</td></tr>
+  <tr><td><code>prestador.js</code></td><td>Novo</td><td>Rotas <code>GET/PUT /prestador</code> e suas validações.</td></tr>
+  <tr><td><code>database_prestador.js</code></td><td>Novo</td><td>Leitura e gravação (<i>upsert</i>) de <code>tb_prestador</code>.</td></tr>
+  <tr><td><code>servico.js</code></td><td>Alterado</td><td>Cadastro com peças e pagamento, <code>GET /servico/:id</code>, rota de pagamento, validações na edição.</td></tr>
+  <tr><td><code>database_servico.js</code></td><td>Alterado</td><td>Listagem com custo e lucro, <code>getById</code>, cadastro e exclusão em transação, <code>getPagamento</code>, <code>registrarPagamento</code>.</td></tr>
+  <tr><td><code>item.js</code></td><td>Alterado</td><td>Preço de custo; correção do <code>PUT</code>; exclusão bloqueada para peça em uso.</td></tr>
+  <tr><td><code>database_itens.js</code></td><td>Alterado</td><td>Gravação de <code>preco_custo</code>.</td></tr>
+  <tr><td><code>server.js</code></td><td>Alterado</td><td>Registro das novas classes e rotas.</td></tr>
+  <tr><td><code>migrations/001..003_*.sql</code></td><td>Novo</td><td>Scripts das alterações no banco.</td></tr>
+</table>
+
+<h2>2. Registro no servidor</h2>
+<pre>server.decorate('db_servico_item', new Database_servico_item());   <span class="c">// app.db_servico_item</span>
+server.decorate('db_prestador', new Database_prestador());         <span class="c">// app.db_prestador</span>
+server.register(servicoItem);   <span class="c">// rotas /servico/:id/pecas...</span>
+server.register(prestador);     <span class="c">// rotas /prestador</span></pre>
+<p>O CORS continua liberado apenas para <code>http://localhost:5173</code> com os métodos <code>GET, POST, PUT, DELETE</code>; todas as rotas novas usam esses métodos.</p>
+
+<h2>3. Migrações do banco</h2>
+<table class="info">
+  <tr><th style="width:34%">Arquivo</th><th>Conteúdo</th></tr>
+  <tr><td><code>001_pecas_servico.sql</code></td><td><code>tb_item.preco_custo</code> e tabela <code>tb_servico_item</code>.</td></tr>
+  <tr><td><code>002_contas_receber.sql</code></td><td><code>tb_registro_servico.status</code> e <code>data_pagamento</code>.</td></tr>
+  <tr><td><code>003_prestador.sql</code></td><td>Tabela <code>tb_prestador</code>.</td></tr>
+</table>
+<p>Já aplicadas no banco <code>inovatec</code>. Em outro banco, execute-as <b>na ordem</b>. A descrição completa (DER, restrições e <i>rollback</i>) está em <code>Documentacao_Alteracoes_Banco_de_Dados.pdf</code>.</p>
+
+<h2>4. Padrão de erros</h2>
+<p>Erros de regra de negócio são lançados como <code>ServicoItemError(statusCode, message)</code> (definido em <code>database_servico_item.js</code> e reutilizado nos demais arquivos). O Fastify usa a propriedade <code>statusCode</code> do erro para responder automaticamente:</p>
+<pre>HTTP/1.1 409 Conflict
+{ "statusCode": 409, "error": "Conflict",
+  "message": "Estoque insuficiente de \"Correia\": disponível 1, necessário 2." }</pre>
+<p>O frontend sempre exibe o campo <code>message</code>. Por isso as mensagens são escritas em português e já explicam o problema ao usuário.</p>
+<table class="info">
+  <tr><th style="width:14%">Código</th><th>Quando</th></tr>
+  <tr><td>400</td><td>Dado inválido: quantidade não inteira/≤ 0, data inexistente ou em formato errado, status inválido, preço negativo, CPF/CNPJ com dígitos errados, e-mail inválido, texto longo demais, pagamento com data futura ou anterior ao serviço.</td></tr>
+  <tr><td>404</td><td>Serviço, peça ou vínculo peça–serviço inexistente.</td></tr>
+  <tr><td>409</td><td>Conflito com o estado atual: estoque insuficiente; exclusão de peça já usada em serviço.</td></tr>
+</table>
+
+<h2>5. Referência da API</h2>
+
+<h3>Serviços</h3>
+<table class="info">
+  <tr><th style="width:30%">Rota</th><th>Descrição</th></tr>
+  <tr><td><code>GET /servico</code> <span class="badge b-alt">ALTERADA</span></td><td>Lista os serviços com os campos calculados <code>custo_pecas</code> e <code>lucro</code>, além de <code>status</code> e <code>data_pagamento</code>. Aceita <code>?search=</code> (contratante ou tipo).</td></tr>
+  <tr><td><code>GET /servico/:id</code> <span class="badge b-novo">NOVA</span></td><td>Um serviço, com os mesmos campos da listagem. 404 se não existir.</td></tr>
+  <tr><td><code>POST /servico</code> <span class="badge b-alt">ALTERADA</span></td><td>Cria o serviço. Opcionais: <code>pecas</code>, <code>status</code>, <code>data_pagamento</code>. Responde <b>201</b> com <code>{ "id_registro_servico": 21 }</code>.</td></tr>
+  <tr><td><code>PUT /servico/:id</code> <span class="badge b-alt">ALTERADA</span></td><td>Edita contratante, data, valor e tipo. <b>Não altera o pagamento.</b> 404 se não existir; 400 se a nova data for posterior à data em que o serviço foi pago.</td></tr>
+  <tr><td><code>PUT /servico/:id/pagamento</code> <span class="badge b-novo">NOVA</span></td><td>Marca como pago ou desfaz (seção 7).</td></tr>
+  <tr><td><code>DELETE /servico/:id</code> <span class="badge b-alt">ALTERADA</span></td><td>Devolve todas as peças ao estoque e exclui o serviço, na mesma transação.</td></tr>
+</table>
+<h4>Exemplo: cadastrar serviço com peças, já pago</h4>
+<pre>POST /servico
+{
+  "contratante": "Academia Corpo em Forma",
+  "data": "2026-11-18",
+  "valor": 350,
+  "tipo": "Manutenção corretiva da esteira",
+  "pecas": [ { "id_item": 16, "quantidade": 1 }, { "id_item": 17, "quantidade": 2 } ],
+  "status": "Pago",                 <span class="c">// opcional (padrão "Pendente")</span>
+  "data_pagamento": "2026-11-20"    <span class="c">// opcional (padrão: hoje, se Pago)</span>
+}
+→ 201 { "id_registro_servico": 18 }
+→ 409 se faltar estoque de qualquer peça (nada é gravado, nem o serviço)</pre>
+<h4>Exemplo: item da listagem</h4>
+<pre>{ "id_registro_servico": 21, "contratante": "SmartFat", "data": "2026-11-20T03:00:00.000Z",
+  "valor": "650.00", "tipo": "Manutenção", "status": "Pendente", "data_pagamento": null,
+  "custo_pecas": "142.00", "lucro": "508.00" }</pre>
+<div class="note">Valores <code>DECIMAL</code> chegam como <b>texto</b> (<code>"650.00"</code>) pelo driver mysql2, e datas <code>DATE</code> chegam como <code>"AAAA-MM-DDT03:00:00.000Z"</code>. O frontend converte nos dois casos.</div>
+
+<h3>Peças do serviço</h3>
+<table class="info">
+  <tr><th style="width:34%">Rota</th><th>Descrição</th></tr>
+  <tr><td><code>GET /servico/:id/pecas</code></td><td>Lista <code>[{ id_servico_item, id_item, nome_item, modelo, quantidade, custo_unitario, subtotal }]</code>, ordenada por nome.</td></tr>
+  <tr><td><code>POST /servico/:id/pecas</code></td><td>Corpo <code>{ "id_item": 16, "quantidade": 2 }</code>. Adiciona a peça (ou soma à quantidade, se já estiver no serviço) e baixa o estoque. <b>201</b>.</td></tr>
+  <tr><td><code>PUT /servico/:id/pecas/:idItem</code></td><td>Corpo <code>{ "quantidade": 3 }</code>. Define a nova quantidade e ajusta o estoque pela diferença. <b>204</b>.</td></tr>
+  <tr><td><code>DELETE /servico/:id/pecas/:idItem</code></td><td>Remove a peça do serviço e devolve a quantidade ao estoque. <b>204</b>.</td></tr>
+</table>
+
+<h3>Itens (peças)</h3>
+<table class="info">
+  <tr><th style="width:30%">Rota</th><th>Alteração</th></tr>
+  <tr><td><code>POST /item</code>, <code>PUT /item/:id</code></td><td>Aceitam <code>preco_custo</code>: número ou texto com vírgula ou ponto (<code>"12,5"</code> → 12.50); vazio grava <code>null</code>; negativo ou inválido → 400. No <code>PUT</code>, se o campo não for enviado, o preço atual é mantido. O <code>PUT</code> agora responde <b>204</b> (antes não enviava resposta).</td></tr>
+  <tr><td><code>DELETE /item/:id</code></td><td>Se a peça já foi usada em algum serviço → <b>409</b> "Esta peça já foi usada em um ou mais serviços e não pode ser excluída."</td></tr>
+</table>
+
+<h3>Prestador</h3>
+<table class="info">
+  <tr><th style="width:30%">Rota</th><th>Descrição</th></tr>
+  <tr><td><code>GET /prestador</code></td><td>Dados cadastrados, com o campo extra <code>cadastrado</code>. Sem cadastro, devolve tudo <code>null</code> com <code>exibir_nos_documentos: true</code> e <code>cadastrado: false</code>.</td></tr>
+  <tr><td><code>PUT /prestador</code></td><td>Cria ou atualiza o cadastro (seção 8) e devolve os dados gravados.</td></tr>
+</table>
+
+<h2>6. Peças e estoque (transações)</h2>
+<p>Toda operação que mexe em peças de serviço é executada por <code>withTransaction(fn)</code>: abre uma conexão do pool, faz <code>BEGIN</code>, executa e faz <code>COMMIT</code>; em qualquer erro faz <code>ROLLBACK</code> (nada é gravado pela metade) e sempre libera a conexão. As linhas envolvidas são bloqueadas com <code>SELECT ... FOR UPDATE</code> para evitar inconsistência em operações simultâneas.</p>
+<table class="info">
+  <tr><th style="width:26%">Função</th><th>Regra</th></tr>
+  <tr><td><code>adicionarPeca</code></td><td>Trava serviço, peça e vínculo. Baixa o estoque e insere o vínculo, copiando <code>preco_custo</code> (ou 0) para <code>custo_unitario</code>. Se a peça já está no serviço, apenas soma a quantidade (o custo do primeiro registro é mantido).</td></tr>
+  <tr><td><code>retirarEstoque</code></td><td>Saldo disponível = <b>soma</b> de todos os registros de <code>tb_estoque</code> da peça. Se insuficiente → 409. A baixa começa pelo registro mais antigo.</td></tr>
+  <tr><td><code>devolverEstoque</code></td><td>Soma ao registro mais antigo da peça. Se a peça não tiver mais registro de estoque, cria um novo.</td></tr>
+  <tr><td><code>setQuantidade</code></td><td>Diferença positiva → retira; negativa → devolve.</td></tr>
+  <tr><td><code>devolverTodasPecas</code></td><td>Usada antes de excluir um serviço; as linhas de <code>tb_servico_item</code> saem pelo <code>ON DELETE CASCADE</code>.</td></tr>
+</table>
+<div class="tip"><b>Por que o custo é copiado?</b> O lucro de um serviço precisa refletir quanto a peça custou <b>quando foi usada</b>. Se o técnico comprar a mesma peça mais cara depois, os serviços antigos não mudam.</div>
+<p>O lucro não é armazenado: <code>GET /servico</code> calcula <code>custo_pecas = SUM(quantidade × custo_unitario)</code> e <code>lucro = valor − custo_pecas</code> com <code>LEFT JOIN</code> (serviços sem peças têm custo 0).</p>
+
+<h2>7. Regras de pagamento</h2>
+<p>Implementadas em <code>pagamento.js</code> e usadas em <code>servico.js</code>:</p>
+<pre>PUT /servico/21/pagamento
+{ "status": "Pago", "data_pagamento": "2026-11-20" }   <span class="c">// data opcional: padrão = hoje</span>
+→ 200 { "id_registro_servico": 21, "status": "Pago", "data_pagamento": "2026-11-20" }
+
+PUT /servico/21/pagamento
+{ "status": "Pendente" }                              <span class="c">// desfaz e limpa a data</span>
+→ 200 { "id_registro_servico": 21, "status": "Pendente", "data_pagamento": null }</pre>
+<ul>
+  <li><code>status</code> aceita apenas "Pago" ou "Pendente" (maiúsculas/minúsculas ignoradas e normalizadas).</li>
+  <li><code>data_pagamento</code> não pode ser futura nem anterior à data do serviço. Com "Pendente", qualquer data enviada é ignorada.</li>
+  <li><code>parseData</code> exige AAAA-MM-DD de uma data real (rejeita <code>2026-02-30</code>). Aceita também o formato ISO devolvido pelo próprio banco, usando só os 10 primeiros caracteres.</li>
+  <li>A comparação de datas é feita como texto AAAA-MM-DD (<code>DATE_FORMAT</code> no SQL), evitando problemas de fuso horário.</li>
+  <li>O banco reforça a coerência com a restrição <code>chk_servico_pagamento</code> (Pago ⇔ possui data).</li>
+</ul>
+
+<h2>8. Dados do prestador</h2>
+<ul>
+  <li>A tabela <code>tb_prestador</code> tem <b>uma linha só</b> (<code>id_prestador = 1</code>). O <code>PUT</code> usa <code>INSERT ... ON DUPLICATE KEY UPDATE</code>, criando na primeira vez e atualizando nas seguintes.</li>
+  <li>Todos os campos são opcionais; textos vazios são gravados como <code>null</code> e espaços extras são removidos.</li>
+  <li>CPF/CNPJ é aceito com ou sem pontuação e gravado <b>só com dígitos</b> (11 ou 14); outro tamanho → 400.</li>
+  <li>E-mail validado por formato; tamanhos máximos: nome, e-mail, cidade e chave PIX com 100 caracteres, telefone com 20.</li>
+  <li><code>exibir_nos_documentos</code>: só fica falso se for enviado <code>false</code> explicitamente.</li>
+</ul>
+
+<h2>9. Testes realizados</h2>
+<p>As rotas foram testadas contra o banco real usando uma instância separada do Fastify (<code>app.inject</code>), sem interferir no servidor em uso. Todos os dados de teste foram removidos ao final.</p>
+<table class="info">
+  <tr><th style="width:30%">Assunto</th><th style="width:10%">Cenários</th><th>Exemplos</th></tr>
+  <tr><td>Preço de custo dos itens</td><td>9</td><td>Com e sem preço, negativo, texto, vírgula, PUT sem o campo, exclusão de peça em uso (409).</td></tr>
+  <tr><td>Peças e estoque</td><td>14</td><td>Baixa com estoque em dois registros, falta de estoque, soma de quantidade, custo congelado, ajuste por diferença, cadastro com peças (tudo ou nada), devolução ao excluir.</td></tr>
+  <tr><td>Lucro</td><td>3</td><td>Lucro positivo, prejuízo (lucro negativo) e serviço sem peças; busca mantida.</td></tr>
+  <tr><td>Pagamento</td><td>18</td><td>Padrão Pendente, Pago sem data (hoje), datas futura/anterior, status inválido, data inexistente, marcar/desfazer, edição preservando pagamento.</td></tr>
+  <tr><td>Prestador</td><td>8</td><td>Sem cadastro, tudo vazio, CPF/CNPJ com máscara, documento, e-mail e tamanho inválidos, erro não apaga dados salvos.</td></tr>
+  <tr><td>Restrições do banco</td><td>—</td><td>Testadas em transações desfeitas logo após a aplicação de cada migração.</td></tr>
+</table>
+
+<h2>10. Pontos de atenção</h2>
+<ul>
+  <li><b>Reinicie o backend</b> após atualizar o código: o Node não recarrega arquivos alterados automaticamente.</li>
+  <li><b>Migrações fora do Git:</b> o <code>.gitignore</code> ignora <code>*.sql</code>. Adicione <code>!backend/migrations/*.sql</code> para versioná-las.</li>
+  <li><b><code>registro_itens.js</code> (não alterado):</b> usa <code>app.db_registro_item</code>, mas o servidor registra <code>db_registro</code>, então a rota falha ao ser chamada. Ela também não recebe <code>id_item</code>.</li>
+  <li><b>Nome do erro:</b> <code>ServicoItemError</code> surgiu nas regras de peças e passou a ser usado para todos os erros de negócio. Se o grupo preferir, pode ser renomeado (ex.: <code>ApiError</code>) em uma refatoração futura.</li>
+  <li><b><code>.env</code>:</b> o arquivo <code>backend/.env</code> com as credenciais do banco não vai para o Git. Cada integrante precisa criar o seu.</li>
+</ul>
+
+</div>
+</body>
+</html>

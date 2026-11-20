@@ -12,14 +12,17 @@ const ItemModal = () => {
         nome_item: "",
         modelo: "",
         data_inscricao: "",
-        categoria: ""
+        categoria: "",
+        preco_custo: ""
     });
 
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setFormData(prev => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : (type === 'number' ? Number(value) : value)
+            [name]: type === 'checkbox'
+                ? checked
+                : (type === 'number' ? (value === '' ? '' : Number(value)) : value)
         }));
     };
 
@@ -35,7 +38,7 @@ const ItemModal = () => {
             })
             .catch((error) => {
                 console.error("Erro ao criar item:", error);
-                alert("Ocorreu um erro ao salvar. Tente novamente.");
+                alert(error.message || "Ocorreu um erro ao salvar. Tente novamente.");
             })
             .finally(() => setLoading(false));
     };
@@ -82,6 +85,16 @@ const ItemModal = () => {
                         placeholder="Categoria"
                         className={style.input}
                         required
+                    />
+                    <input
+                        type="number"
+                        name="preco_custo"
+                        value={formData.preco_custo}
+                        onChange={handleChange}
+                        placeholder="Preço de custo (R$) - opcional"
+                        className={style.input}
+                        min="0"
+                        step="0.01"
                     />
                 </div>
 

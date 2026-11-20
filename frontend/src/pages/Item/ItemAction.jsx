@@ -2,6 +2,7 @@ import { useEntityActions } from "../../hooks/useEntityActions";
 import { useItemStore } from "../../store/useItemStore.js";
 import style from "./Item.module.css"
 import { ITEM_ENDPOINT } from "../../constants/apiUrl.constants.js";
+import { formatBRL } from "../../utils/formatters.js";
 
 const ItemAction = ({ item }) => {
     const { fetchItems } = useItemStore();
@@ -13,8 +14,10 @@ const ItemAction = ({ item }) => {
         {
             categoria: item.categoria,
             nome_item: item.nome_item,
-            data_inscricao: item.data_inscricao,
-            modelo: item.modelo
+            // O banco devolve "2026-11-20T03:00:00.000Z"; o MySQL só aceita "2026-11-20" de volta.
+            data_inscricao: item.data_inscricao?.split('T')[0],
+            modelo: item.modelo,
+            preco_custo: item.preco_custo ?? ''
         },
         "Item"
     );
@@ -89,13 +92,22 @@ const ItemAction = ({ item }) => {
                         onChange={handleChange}
                         className={style.input}
                     />
+
+                    <label className={style.label}>Preço de custo (R$):</label>
+                    <input
+                        name="preco_custo"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={formData.preco_custo}
+                        onChange={handleChange}
+                        className={style.input}
+                        placeholder="Opcional"
+                    />
                 </form>
             ) : (
                 <div className={style.info}>
                     <h1 className={style.titulo}>{item.nome_item}</h1>
-
-                    <label className={style.label}>ID do Registro:</label>
-                    <p className={style.tipo}>{item.id_item}</p>
 
                     <label className={style.label}>Categoria:</label>
                     <p className={style.tipo}>{item.categoria}</p>
@@ -105,6 +117,9 @@ const ItemAction = ({ item }) => {
 
                     <label className={style.label}>Data de Inscrição:</label>
                     <p className={style.tipo}>{formatarDataBR(item.data_inscricao)}</p>
+
+                    <label className={style.label}>Preço de custo:</label>
+                    <p className={style.tipo}>{formatBRL(item.preco_custo, "Não informado")}</p>
                 </div>
             )}
 
