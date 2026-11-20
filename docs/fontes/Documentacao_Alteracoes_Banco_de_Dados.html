@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Alterações do Banco de Dados</title>
+<style>
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: #f7f9fb; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #34495e; font-size: 13.5px; line-height: 1.6; }
+  .page { padding: 48px 56px; }
+  h1 { color: #2c3e50; font-size: 34px; line-height: 1.25; margin: 0 0 18px; padding-bottom: 14px; border-bottom: 3px solid #3498db; }
+  h2 { color: #2980b9; font-size: 21px; margin: 34px 0 14px; page-break-after: avoid; }
+  h3 { color: #2c3e50; font-size: 15px; margin: 22px 0 8px; page-break-after: avoid; }
+  p { margin: 0 0 10px; text-align: justify; }
+  code { font-family: Consolas, "Courier New", monospace; font-size: 12px; background: #ecf0f3; padding: 1px 5px; border-radius: 3px; color: #2c3e50; }
+  .card { background: #fff; border-left: 4px solid #3498db; border-radius: 4px; padding: 18px 22px; margin: 0 0 14px; page-break-inside: avoid; }
+  .card.novo { border-left-color: #27ae60; }
+  .card .tname { display: inline-block; font-family: Consolas, monospace; font-weight: bold; font-size: 13px; background: #ecf0f3; padding: 2px 6px; border-radius: 3px; margin-bottom: 8px; }
+  .badge { display: inline-block; font-size: 10px; font-weight: bold; letter-spacing: .5px; padding: 2px 7px; border-radius: 10px; margin-left: 6px; vertical-align: 2px; color: #fff; }
+  .b-novo { background: #27ae60; } .b-alt { background: #e67e22; } .b-sem { background: #95a5a6; }
+  ul { margin: 6px 0 4px; padding-left: 18px; } li { margin: 2px 0; }
+  li.novo-campo { color: #1e8449; }
+  table.info { width: 100%; border-collapse: collapse; background: #fff; margin: 6px 0 14px; font-size: 12.5px; page-break-inside: avoid; }
+  table.info th { background: #2c3e50; color: #fff; text-align: left; padding: 7px 10px; font-weight: 600; }
+  table.info td { border-bottom: 1px solid #e3e8ec; padding: 7px 10px; vertical-align: top; }
+  .der { background: #fff; border: 1px solid #e3e8ec; border-radius: 6px; padding: 14px; page-break-inside: avoid; }
+  .legend { font-size: 11.5px; color: #5d6d7e; margin-top: 8px; }
+  .legend span.sw { display: inline-block; width: 11px; height: 11px; vertical-align: -1px; margin: 0 4px 0 12px; border: 1px solid #27ae60; background: #e8f6ee; }
+  pre { background: #2c3e50; color: #ecf0f1; font-family: Consolas, monospace; font-size: 11px; line-height: 1.45; padding: 14px 16px; border-radius: 5px; white-space: pre-wrap; page-break-inside: avoid; margin: 6px 0 14px; }
+  pre .c { color: #95a5a6; }
+  .note { background: #fef9e7; border-left: 4px solid #f1c40f; padding: 10px 14px; border-radius: 4px; font-size: 12.5px; margin: 8px 0 14px; page-break-inside: avoid; }
+  .break { page-break-before: always; }
+  .meta { color: #7f8c8d; font-size: 12px; margin-bottom: 18px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<h1>Documentação das Alterações do Banco de Dados</h1>
+<div class="meta">Sistema Fast Soluções · Banco <code>inovatec</code> (MySQL 8.4) · Documento complementar a <code>Documentacao_Banco_de_Dados.pdf</code></div>
+
+<p>Este documento registra, de forma cumulativa, todas as alterações estruturais feitas no banco de dados do sistema Fast Soluções durante a implementação das novas funcionalidades. O sistema é usado por um técnico autônomo que conserta equipamentos de academias de terceiros: ele compra peças, usa essas peças nos consertos e cobra pelo serviço. As alterações descritas aqui permitem relacionar as peças compradas aos serviços prestados, controlando estoque e lucro real de cada atendimento, registrar se cada serviço já foi pago pela academia (contas a receber) e guardar os dados do técnico usados nos recibos e orçamentos.</p>
+<p>A estrutura original (tabelas, campos e relacionamentos) continua descrita no documento <code>Documentacao_Banco_de_Dados.pdf</code>. Aqui são detalhados apenas os elementos novos ou alterados.</p>
+
+<h2>1. Resumo das Alterações</h2>
+<table class="info">
+  <tr><th style="width:13%">Etapa</th><th style="width:15%">Tipo</th><th style="width:22%">Objeto</th><th>Descrição</th></tr>
+  <tr><td>1.1</td><td>Alteração</td><td><code>tb_item</code></td><td>Nova coluna <code>preco_custo</code> para registrar quanto o técnico pagou por unidade da peça.</td></tr>
+  <tr><td>1.1</td><td>Criação</td><td><code>tb_servico_item</code></td><td>Nova tabela associativa que registra quais peças, e em que quantidade, foram usadas em cada serviço.</td></tr>
+  <tr><td>2.1</td><td>Alteração</td><td><code>tb_registro_servico</code></td><td>Novas colunas <code>status</code> e <code>data_pagamento</code> para controlar se o serviço já foi pago e quando.</td></tr>
+  <tr><td>5.1</td><td>Criação</td><td><code>tb_prestador</code></td><td>Nova tabela com os dados do técnico (opcionais) exibidos nos recibos e orçamentos.</td></tr>
+</table>
+<table class="info">
+  <tr><th style="width:28%">Arquivo de migração</th><th style="width:14%">Etapa</th><th style="width:18%">Aplicada em</th><th>Situação</th></tr>
+  <tr><td><code>backend/migrations/001_pecas_servico.sql</code></td><td>1.1</td><td>20/11/2026</td><td>Aplicada e verificada no banco <code>inovatec</code></td></tr>
+  <tr><td><code>backend/migrations/002_contas_receber.sql</code></td><td>2.1</td><td>20/11/2026</td><td>Aplicada e verificada no banco <code>inovatec</code></td></tr>
+  <tr><td><code>backend/migrations/003_prestador.sql</code></td><td>5.1</td><td>20/11/2026</td><td>Aplicada e verificada no banco <code>inovatec</code></td></tr>
+</table>
+
+<h2 class="break">2. Diagrama Entidade-Relacionamento (DER) Atualizado</h2>
+<p>O diagrama mostra as tabelas envolvidas nas novas funcionalidades. Elementos destacados em verde são novos. As tabelas <code>tb_usuario</code> e <code>tb_despesas_variadas</code> não foram alteradas e foram omitidas do diagrama. A tabela <code>tb_prestador</code> é independente (não possui relacionamentos).</p>
+<div class="der">
+  <svg id="der" viewBox="0 0 760 500" width="100%" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, sans-serif"></svg>
+  <div class="legend">Legenda:<span class="sw"></span>Adicionado em relação à estrutura original &nbsp;·&nbsp; <b>PK</b> chave primária &nbsp;·&nbsp; <b>FK</b> chave estrangeira &nbsp;·&nbsp; ┼ lado "um" &nbsp;·&nbsp; pé de galinha: lado "muitos" (○ = opcional)</div>
+</div>
+
+<h2>3. Etapa 1.1 — Peças Usadas no Serviço</h2>
+<p><b>Objetivo:</b> permitir que, ao registrar um serviço, o técnico informe quais peças do seu estoque foram usadas. Com isso o sistema consegue descontar o estoque automaticamente e calcular o lucro real de cada serviço (valor cobrado menos o custo das peças).</p>
+
+<div class="card">
+  <span class="tname">tb_item</span><span class="badge b-alt">ALTERADA</span>
+  <p>Catálogo de peças compradas pelo técnico. Recebeu uma nova coluna para o custo de aquisição.</p>
+  <ul>
+    <li class="novo-campo"><b>preco_custo</b> <code>DECIMAL(18,2) NULL</code>: Preço pago por uma unidade da peça. É opcional (aceita nulo) para não obrigar o preenchimento em peças já cadastradas; nesse caso o custo é considerado R$ 0,00 nos cálculos.</li>
+    <li><b>Restrição <code>chk_item_preco_custo</code></b>: impede valores negativos (<code>preco_custo IS NULL OR preco_custo &gt;= 0</code>).</li>
+  </ul>
+</div>
+
+<div class="card novo">
+  <span class="tname">tb_servico_item</span><span class="badge b-novo">NOVA</span>
+  <p>Tabela associativa que resolve o relacionamento muitos-para-muitos entre serviços e peças: um serviço pode usar várias peças, e uma mesma peça pode ser usada em vários serviços. Cada linha representa "a peça X foi usada N vezes no serviço Y".</p>
+  <ul>
+    <li><b>id_servico_item (PK)</b> <code>INT</code>: Identificador único do registro (Auto Incremento).</li>
+    <li><b>id_registro_servico (FK)</b> <code>INT NOT NULL</code>: Serviço em que a peça foi usada. Referencia <code>tb_registro_servico</code> (Deleção/Atualização em cascata).</li>
+    <li><b>id_item (FK)</b> <code>INT NOT NULL</code>: Peça utilizada. Referencia <code>tb_item</code> (Deleção restrita; atualização em cascata).</li>
+    <li><b>quantidade</b> <code>INT NOT NULL</code>: Quantas unidades da peça foram usadas. Deve ser maior que zero.</li>
+    <li><b>custo_unitario</b> <code>DECIMAL(18,2) NOT NULL DEFAULT 0.00</code>: Cópia do <code>preco_custo</code> da peça <b>no momento</b> em que foi usada. Assim, se o técnico comprar a mesma peça mais cara no futuro, o lucro dos serviços antigos não muda.</li>
+  </ul>
+  <h3>Restrições</h3>
+  <ul>
+    <li><b><code>uk_servico_item</code></b> (UNIQUE em <code>id_registro_servico, id_item</code>): a mesma peça aparece no máximo uma vez por serviço; para usar mais unidades, aumenta-se a quantidade.</li>
+    <li><b><code>chk_si_quantidade</code></b>: <code>quantidade &gt; 0</code>.</li>
+    <li><b><code>chk_si_custo</code></b>: <code>custo_unitario &gt;= 0</code>.</li>
+  </ul>
+</div>
+
+<h2>4. Relacionamentos e Integridade</h2>
+<p>Relacionamentos introduzidos nesta etapa, somados aos já existentes:</p>
+<ul>
+  <li><b>Serviço → Peças usadas (1:N)</b>: <code>tb_servico_item</code> depende de <code>tb_registro_servico</code>. Se um serviço for excluído, as peças vinculadas a ele são removidas automaticamente (<code>ON DELETE CASCADE</code>). A devolução das quantidades ao estoque é feita pelo backend (Etapa 1.3) antes da exclusão.</li>
+  <li><b>Peça → Usos em serviços (1:N)</b>: <code>tb_servico_item</code> depende de <code>tb_item</code>. Uma peça que já foi usada em algum serviço <b>não pode ser excluída</b> (<code>ON DELETE RESTRICT</code>), preservando o histórico de custos e o cálculo de lucro dos serviços.</li>
+  <li>Com isso, <code>tb_registro_servico</code> deixa de ser uma tabela isolada e passa a se relacionar com <code>tb_item</code> por meio de <code>tb_servico_item</code> (relacionamento N:N).</li>
+  <li>Os relacionamentos originais (<code>tb_estoque</code> e <code>tb_registro_item</code> com <code>tb_item</code>) permanecem inalterados.</li>
+</ul>
+<div class="note"><b>Observação:</b> o desconto e a devolução de estoque (<code>tb_estoque.quantidade</code>) não são feitos por <i>triggers</i> no banco, e sim pelo backend, dentro de uma transação. Essa lógica está descrita na seção 5.</div>
+
+<h2>5. Regras de Movimentação de Estoque (Etapa 1.3)</h2>
+<p>A Etapa 1.3 não alterou a estrutura do banco. Ela implementou, no backend, as regras que mantêm <code>tb_estoque</code> e <code>tb_servico_item</code> consistentes entre si. Toda operação é executada em uma <b>transação</b> (<code>BEGIN</code> / <code>COMMIT</code> / <code>ROLLBACK</code>), com as linhas envolvidas bloqueadas por <code>SELECT ... FOR UPDATE</code>: se qualquer passo falhar, nada é gravado.</p>
+<table class="info">
+  <tr><th style="width:30%">Operação (rota)</th><th style="width:35%">Efeito em <code>tb_servico_item</code></th><th>Efeito em <code>tb_estoque</code></th></tr>
+  <tr><td>Adicionar peça ao serviço<br><code>POST /servico/:id/pecas</code></td><td>Insere a linha copiando <code>tb_item.preco_custo</code> (ou 0) para <code>custo_unitario</code>. Se a peça já estiver no serviço, apenas soma a quantidade.</td><td>Subtrai a quantidade. Se a peça tiver mais de um registro de estoque, o saldo é a soma deles e a baixa começa pelo mais antigo.</td></tr>
+  <tr><td>Alterar quantidade<br><code>PUT /servico/:id/pecas/:idItem</code></td><td>Atualiza <code>quantidade</code>.</td><td>Aumento: subtrai a diferença. Redução: devolve a diferença.</td></tr>
+  <tr><td>Remover peça do serviço<br><code>DELETE /servico/:id/pecas/:idItem</code></td><td>Exclui a linha.</td><td>Devolve a quantidade usada.</td></tr>
+  <tr><td>Cadastrar serviço com peças<br><code>POST /servico</code> (campo <code>pecas</code>)</td><td>Insere o serviço e todas as peças na mesma transação.</td><td>Subtrai a quantidade de cada peça.</td></tr>
+  <tr><td>Excluir serviço<br><code>DELETE /servico/:id</code></td><td>Linhas removidas pelo <code>ON DELETE CASCADE</code>.</td><td>Devolve todas as peças antes da exclusão.</td></tr>
+</table>
+<h3>Validações</h3>
+<ul>
+  <li><b>Estoque insuficiente</b> (HTTP 409): a operação é recusada e nada é gravado. Ex.: <i>Estoque insuficiente de "Correia": disponível 1, necessário 2.</i> No cadastro de serviço com peças, nem o serviço é criado.</li>
+  <li><b>Quantidade inválida</b> (HTTP 400): deve ser um número inteiro maior que zero.</li>
+  <li><b>Serviço ou peça inexistente</b> (HTTP 404).</li>
+  <li><b>Exclusão de peça já usada em serviço</b> (HTTP 409): bloqueada pela FK <code>fk_si_item</code> (<code>ON DELETE RESTRICT</code>), com mensagem explicativa ao usuário.</li>
+  <li><b>Devolução sem registro de estoque</b>: se o registro de estoque da peça tiver sido apagado, a devolução cria um novo registro com a quantidade devolvida.</li>
+</ul>
+
+<div style="page-break-inside: avoid"><h2>6. Cálculo do Lucro por Serviço (Etapa 1.5)</h2>
+<p>A estrutura permite calcular, diretamente no banco, o custo das peças e o lucro de cada serviço. A partir da Etapa 1.5, essa consulta é usada pela rota <code>GET /servico</code>, que passa a devolver os campos calculados <code>custo_pecas</code> e <code>lucro</code> (não armazenados; calculados a cada consulta). O <code>LEFT JOIN</code> garante que serviços sem peças também apareçam, com custo R$ 0,00 e lucro igual ao valor cobrado.</p>
+<pre>SELECT s.id_registro_servico,
+       s.contratante,
+       s.valor                                              AS valor_cobrado,
+       COALESCE(SUM(si.quantidade * si.custo_unitario), 0)  AS custo_pecas,
+       s.valor - COALESCE(SUM(si.quantidade * si.custo_unitario), 0) AS lucro
+  FROM tb_registro_servico s
+  LEFT JOIN tb_servico_item si ON si.id_registro_servico = s.id_registro_servico
+ GROUP BY s.id_registro_servico;</pre></div>
+
+<h2 class="break">7. Etapa 2.1 — Contas a Receber</h2>
+<p><b>Objetivo:</b> registrar se cada serviço já foi pago pela academia e em que data. É comum o técnico fazer o conserto e receber dias depois; sem esse controle ele não sabe quanto tem a receber nem quem está devendo. Com os novos campos, o sistema consegue listar os serviços pendentes, somar o valor em aberto e calcular há quantos dias cada um está sem pagamento.</p>
+
+<div class="card">
+  <span class="tname">tb_registro_servico</span><span class="badge b-alt">ALTERADA</span>
+  <p>Registro dos serviços prestados às academias. Recebeu duas colunas para o controle de pagamento.</p>
+  <ul>
+    <li class="novo-campo"><b>status</b> <code>VARCHAR(10) NOT NULL DEFAULT 'Pendente'</code>: Situação do pagamento do serviço. Aceita somente <code>'Pago'</code> ou <code>'Pendente'</code>. Todo serviço novo começa como <code>'Pendente'</code>, assim como os serviços que já existiam no momento da migração.</li>
+    <li class="novo-campo"><b>data_pagamento</b> <code>DATE NULL</code>: Data em que o técnico recebeu o pagamento. Preenchida apenas quando o serviço está pago.</li>
+  </ul>
+  <h3>Restrições</h3>
+  <ul>
+    <li><b><code>chk_servico_status</code></b>: <code>status IN ('Pago', 'Pendente')</code>, impedindo valores digitados de forma diferente (ex.: "pago", "Paga", "Sim").</li>
+    <li><b><code>chk_servico_pagamento</code></b>: garante a coerência entre os dois campos. Um serviço <code>'Pago'</code> <b>exige</b> <code>data_pagamento</code>, e um serviço <code>'Pendente'</code> <b>não pode</b> ter <code>data_pagamento</code>.</li>
+  </ul>
+</div>
+
+<h3>Verificação realizada</h3>
+<p>Após a aplicação, as restrições foram testadas dentro de uma transação desfeita ao final (nenhum dado foi gravado):</p>
+<table class="info">
+  <tr><th style="width:55%">Tentativa de inserção</th><th>Resultado</th></tr>
+  <tr><td>Serviço sem informar status (fica <code>'Pendente'</code>, sem data)</td><td>Aceita</td></tr>
+  <tr><td><code>'Pago'</code> com <code>data_pagamento</code></td><td>Aceita</td></tr>
+  <tr><td><code>'Pago'</code> sem <code>data_pagamento</code></td><td>Bloqueada (<code>chk_servico_pagamento</code>)</td></tr>
+  <tr><td><code>'Pendente'</code> com <code>data_pagamento</code></td><td>Bloqueada (<code>chk_servico_pagamento</code>)</td></tr>
+  <tr><td>Status inválido (<code>'Talvez'</code>)</td><td>Bloqueada</td></tr>
+</table>
+
+<h3>Regras aplicadas pelo backend (Etapa 2.2)</h3>
+<p>Além das restrições do banco, o backend valida as regras de negócio do pagamento antes de gravar:</p>
+<table class="info">
+  <tr><th style="width:34%">Operação (rota)</th><th>Comportamento</th></tr>
+  <tr><td>Cadastrar serviço<br><code>POST /servico</code></td><td>Aceita <code>status</code> e <code>data_pagamento</code> opcionais. Sem status, o serviço entra como <code>'Pendente'</code>. Com <code>'Pago'</code> e sem data, usa a data de hoje.</td></tr>
+  <tr><td>Marcar como pago / desfazer<br><code>PUT /servico/:id/pagamento</code></td><td><code>{"status": "Pago", "data_pagamento": "AAAA-MM-DD"}</code> registra o recebimento (data opcional, padrão hoje). <code>{"status": "Pendente"}</code> desfaz e limpa a data. Responde com o status e a data gravados.</td></tr>
+  <tr><td>Editar serviço<br><code>PUT /servico/:id</code></td><td>Não altera o status de pagamento, evitando apagar um recebimento por engano. Bloqueia mudar a data do serviço para depois da data em que ele foi pago.</td></tr>
+</table>
+<ul>
+  <li><b>Data de pagamento futura</b> (HTTP 400): não é possível registrar um recebimento que ainda não aconteceu.</li>
+  <li><b>Data de pagamento anterior à data do serviço</b> (HTTP 400). Ex.: <i>A data de pagamento não pode ser anterior à data do serviço (10/11/2026).</i></li>
+  <li><b>Status inválido</b> (HTTP 400): apenas "Pago" ou "Pendente" (maiúsculas/minúsculas são ignoradas).</li>
+  <li><b>Data em formato inválido ou inexistente</b> (HTTP 400), como <code>2026-02-30</code>.</li>
+  <li><b>Serviço inexistente</b> (HTTP 404).</li>
+</ul>
+
+<h3>Exemplo de uso: total a receber por academia</h3>
+<pre>SELECT contratante,
+       COUNT(*)                        AS servicos_pendentes,
+       SUM(valor)                      AS total_a_receber,
+       DATEDIFF(CURDATE(), MIN(data))  AS dias_do_mais_antigo
+  FROM tb_registro_servico
+ WHERE status = 'Pendente'
+ GROUP BY contratante
+ ORDER BY dias_do_mais_antigo DESC;</pre>
+
+<h2 class="break">8. Etapa 5.1 — Dados do Prestador</h2>
+<p><b>Objetivo:</b> permitir que o próprio técnico cadastre, pelo sistema, os dados que aparecem nos recibos e orçamentos enviados às academias (nome, CPF/CNPJ, contato, cidade e chave PIX), sem que essas informações fiquem fixas no código. Todos os campos são opcionais, e o técnico pode escolher não exibir seus dados nos documentos, mesmo que estejam preenchidos.</p>
+
+<div class="card novo">
+  <span class="tname">tb_prestador</span><span class="badge b-novo">NOVA</span>
+  <p>Tabela de configuração com <b>no máximo uma linha</b>, já que o sistema é usado por um único técnico. Foi criada separada de <code>tb_usuario</code> porque aquela tabela guarda credenciais de acesso (CNPJ e senha obrigatórios), enquanto estes dados são opcionais e destinados à exibição pública nos documentos.</p>
+  <ul>
+    <li><b>id_prestador (PK)</b> <code>INT NOT NULL DEFAULT 1</code>: Identificador fixo. Só pode valer 1.</li>
+    <li><b>nome</b> <code>VARCHAR(100) NULL</code>: Nome do técnico ou da empresa.</li>
+    <li><b>documento</b> <code>VARCHAR(14) NULL</code>: CPF (11 dígitos) ou CNPJ (14 dígitos), armazenado somente com números. A formatação (pontos, barra e traço) é aplicada na exibição.</li>
+    <li><b>telefone</b> <code>VARCHAR(20) NULL</code>: Telefone ou WhatsApp, guardado como digitado.</li>
+    <li><b>email</b> <code>VARCHAR(100) NULL</code>: E-mail de contato.</li>
+    <li><b>cidade</b> <code>VARCHAR(100) NULL</code>: Cidade/UF de atuação.</li>
+    <li><b>chave_pix</b> <code>VARCHAR(100) NULL</code>: Chave PIX para a academia efetuar o pagamento.</li>
+    <li><b>exibir_nos_documentos</b> <code>TINYINT(1) NOT NULL DEFAULT 1</code>: Se 1, os dados preenchidos aparecem nos recibos e orçamentos; se 0, os documentos são gerados sem eles.</li>
+    <li><b>atualizado_em</b> <code>TIMESTAMP NOT NULL</code>: Data/hora da última alteração (preenchida automaticamente pelo banco).</li>
+  </ul>
+  <h3>Restrições</h3>
+  <ul>
+    <li><b><code>chk_prestador_unico</code></b>: <code>id_prestador = 1</code>, garantindo um único cadastro.</li>
+    <li><b><code>chk_prestador_documento</code></b>: o documento, quando informado, deve ter exatamente 11 ou 14 dígitos numéricos.</li>
+  </ul>
+</div>
+
+<h3>Verificação realizada</h3>
+<table class="info">
+  <tr><th style="width:55%">Tentativa (em transação desfeita ao final)</th><th>Resultado</th></tr>
+  <tr><td>Cadastro com todos os campos vazios</td><td>Aceita (padrão: exibir nos documentos)</td></tr>
+  <tr><td>Segunda linha (<code>id_prestador = 2</code>)</td><td>Bloqueada (<code>chk_prestador_unico</code>)</td></tr>
+  <tr><td>CPF com 11 dígitos / CNPJ com 14 dígitos</td><td>Aceitas</td></tr>
+  <tr><td>Documento com pontuação ou com 9 dígitos</td><td>Bloqueadas (<code>chk_prestador_documento</code>)</td></tr>
+</table>
+
+<h3>Regras aplicadas pelo backend</h3>
+<table class="info">
+  <tr><th style="width:34%">Rota</th><th>Comportamento</th></tr>
+  <tr><td><code>GET /prestador</code></td><td>Devolve os dados cadastrados. Se ainda não houver cadastro, devolve todos os campos vazios com <code>exibir_nos_documentos = true</code>.</td></tr>
+  <tr><td><code>PUT /prestador</code></td><td>Cria o cadastro na primeira vez e atualiza nas seguintes (<code>INSERT ... ON DUPLICATE KEY UPDATE</code>). Campos vazios são gravados como nulos. O CPF/CNPJ é aceito com ou sem pontuação e gravado só com dígitos.</td></tr>
+</table>
+<ul>
+  <li><b>CPF/CNPJ com quantidade de dígitos diferente de 11 ou 14</b> (HTTP 400).</li>
+  <li><b>E-mail em formato inválido</b> (HTTP 400).</li>
+  <li><b>Texto maior que o tamanho da coluna</b> (HTTP 400), com o nome do campo na mensagem.</li>
+</ul>
+
+<div style="page-break-inside: avoid"><h2>9. Scripts Aplicados</h2>
+<p>Conteúdo do arquivo <code>backend/migrations/001_pecas_servico.sql</code> (Etapa 1.1):</p>
+<pre><span class="c">-- 1) Preço de custo da peça</span>
+ALTER TABLE tb_item
+  ADD COLUMN preco_custo DECIMAL(18,2) NULL AFTER categoria,
+  ADD CONSTRAINT chk_item_preco_custo CHECK (preco_custo IS NULL OR preco_custo &gt;= 0);
+
+<span class="c">-- 2) Tabela associativa Serviço x Peça (N:N)</span>
+CREATE TABLE tb_servico_item (
+  id_servico_item     INT NOT NULL AUTO_INCREMENT,
+  id_registro_servico INT NOT NULL,
+  id_item             INT NOT NULL,
+  quantidade          INT NOT NULL,
+  custo_unitario      DECIMAL(18,2) NOT NULL DEFAULT 0.00,
+  PRIMARY KEY (id_servico_item),
+  UNIQUE KEY uk_servico_item (id_registro_servico, id_item),
+  KEY fk_si_item (id_item),
+  CONSTRAINT fk_si_servico FOREIGN KEY (id_registro_servico)
+    REFERENCES tb_registro_servico (id_registro_servico)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_si_item FOREIGN KEY (id_item)
+    REFERENCES tb_item (id_item)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT chk_si_quantidade CHECK (quantidade &gt; 0),
+  CONSTRAINT chk_si_custo CHECK (custo_unitario &gt;= 0)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;</pre></div>
+
+<div style="page-break-inside: avoid">
+<p>Conteúdo do arquivo <code>backend/migrations/002_contas_receber.sql</code> (Etapa 2.1):</p>
+<pre>ALTER TABLE tb_registro_servico
+  ADD COLUMN status VARCHAR(10) NOT NULL DEFAULT 'Pendente' AFTER tipo,
+  ADD COLUMN data_pagamento DATE NULL AFTER status,
+  ADD CONSTRAINT chk_servico_status CHECK (status IN ('Pago', 'Pendente')),
+  ADD CONSTRAINT chk_servico_pagamento CHECK (
+    (status = 'Pago' AND data_pagamento IS NOT NULL) OR
+    (status = 'Pendente' AND data_pagamento IS NULL)
+  );</pre></div>
+
+<div style="page-break-inside: avoid">
+<p>Conteúdo do arquivo <code>backend/migrations/003_prestador.sql</code> (Etapa 5.1):</p>
+<pre>CREATE TABLE tb_prestador (
+  id_prestador          INT NOT NULL DEFAULT 1,
+  nome                  VARCHAR(100) NULL,
+  documento             VARCHAR(14)  NULL,   <span class="c">-- CPF (11) ou CNPJ (14), somente dígitos</span>
+  telefone              VARCHAR(20)  NULL,
+  email                 VARCHAR(100) NULL,
+  cidade                VARCHAR(100) NULL,
+  chave_pix             VARCHAR(100) NULL,
+  exibir_nos_documentos TINYINT(1)   NOT NULL DEFAULT 1,
+  atualizado_em         TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id_prestador),
+  CONSTRAINT chk_prestador_unico CHECK (id_prestador = 1),
+  CONSTRAINT chk_prestador_documento CHECK (
+    documento IS NULL OR documento REGEXP '^([0-9]{11}|[0-9]{14})$'
+  )
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;</pre></div>
+
+<h3>Como desfazer (rollback)</h3>
+<p>As reversões devem ser feitas na ordem inversa da aplicação. Reverter a Etapa 5.1 (apaga os dados do prestador):</p>
+<pre>DROP TABLE tb_prestador;</pre>
+<p>Reverter a Etapa 2.1 (perde o histórico de pagamentos):</p>
+<pre>ALTER TABLE tb_registro_servico
+  DROP CHECK chk_servico_pagamento,
+  DROP CHECK chk_servico_status,
+  DROP COLUMN data_pagamento,
+  DROP COLUMN status;</pre>
+<p>Reverter a Etapa 1.1 (apaga os registros de peças usadas em serviços):</p>
+<pre>DROP TABLE tb_servico_item;
+ALTER TABLE tb_item
+  DROP CHECK chk_item_preco_custo,
+  DROP COLUMN preco_custo;</pre>
+
+<h2>10. Histórico de Versões</h2>
+<table class="info">
+  <tr><th style="width:12%">Versão</th><th style="width:16%">Data</th><th style="width:12%">Etapa</th><th>Alteração</th></tr>
+  <tr><td>1.0</td><td>20/11/2026</td><td>1.1</td><td>Criação do documento. Coluna <code>preco_custo</code> em <code>tb_item</code> e nova tabela <code>tb_servico_item</code>.</td></tr>
+  <tr><td>1.1</td><td>20/11/2026</td><td>1.3</td><td>Inclusão da seção 5 (regras de movimentação de estoque e validações). Sem alteração estrutural no banco.</td></tr>
+  <tr><td>1.2</td><td>20/11/2026</td><td>1.5</td><td>Seção 6: a consulta de lucro passa a ser usada pela rota <code>GET /servico</code> (campos calculados <code>custo_pecas</code> e <code>lucro</code>). Sem alteração estrutural no banco.</td></tr>
+  <tr><td>1.3</td><td>20/11/2026</td><td>2.1</td><td>Colunas <code>status</code> e <code>data_pagamento</code> em <code>tb_registro_servico</code>, com restrições de coerência. Seção 7 e DER atualizados.</td></tr>
+  <tr><td>1.4</td><td>20/11/2026</td><td>2.2</td><td>Seção 7: regras de pagamento aplicadas pelo backend. Sem alteração estrutural no banco.</td></tr>
+  <tr><td>1.5</td><td>20/11/2026</td><td>5.1</td><td>Nova tabela <code>tb_prestador</code> (seção 8), incluída no DER, nos scripts e no rollback.</td></tr>
+</table>
+
+</div>
+
+<script>
+(function () {
+  var NS = 'http://www.w3.org/2000/svg', svg = document.getElementById('der');
+  var HEAD = 24, ROW = 22, KEYW = 30;
+  function el(tag, attrs, text) {
+    var e = document.createElementNS(NS, tag);
+    for (var k in attrs) e.setAttribute(k, attrs[k]);
+    if (text != null) e.textContent = text;
+    svg.appendChild(e); return e;
+  }
+  // Tabelas: [chave, texto, novo?]
+  var T = {
+    estoque: { x: 10, y: 70, w: 200, name: 'tb_estoque', rows: [['PK','id_estoque INT'],['FK','id_item INT NOT NULL'],['','quantidade INT NOT NULL']] },
+    item: { x: 275, y: 20, w: 210, name: 'tb_item', rows: [['PK','id_item INT'],['','nome_item VARCHAR(50) NOT NULL'],['','modelo VARCHAR(50)'],['','data_inscricao DATE NOT NULL'],['','categoria VARCHAR(50)'],['','preco_custo DECIMAL(18,2)',1]] },
+    registro: { x: 540, y: 30, w: 210, name: 'tb_registro_item', rows: [['PK','id_registro_item INT'],['FK','id_item INT'],['','tipo VARCHAR(10)'],['','data DATE NOT NULL'],['','valor DECIMAL(18,2) NOT NULL']] },
+    servItem: { x: 255, y: 270, w: 250, name: 'tb_servico_item', novo: 1, rows: [['PK','id_servico_item INT'],['FK','id_registro_servico INT NOT NULL'],['FK','id_item INT NOT NULL'],['','quantidade INT NOT NULL'],['','custo_unitario DECIMAL(18,2) NOT NULL']] },
+    servico: { x: 545, y: 270, w: 205, name: 'tb_registro_servico', rows: [['PK','id_registro_servico INT'],['','contratante VARCHAR(50)'],['','data DATE NOT NULL'],['','valor DECIMAL(18,2) NOT NULL'],['','tipo VARCHAR(50)'],['','status VARCHAR(10) NOT NULL',1],['','data_pagamento DATE',1]] },
+    prestador: { x: 10, y: 270, w: 230, name: 'tb_prestador', novo: 1, rows: [['PK','id_prestador INT'],['','nome VARCHAR(100)'],['','documento VARCHAR(14)'],['','telefone VARCHAR(20)'],['','email VARCHAR(100)'],['','cidade VARCHAR(100)'],['','chave_pix VARCHAR(100)'],['','exibir_nos_documentos TINYINT(1)'],['','atualizado_em TIMESTAMP']] }
+  };
+  function drawTable(t) {
+    var h = HEAD + ROW * t.rows.length;
+    el('rect', { x: t.x, y: t.y, width: t.w, height: h, fill: t.novo ? '#e8f6ee' : '#fff', stroke: t.novo ? '#27ae60' : '#222', 'stroke-width': t.novo ? 1.5 : 1 });
+    el('text', { x: t.x + t.w / 2, y: t.y + 16, 'text-anchor': 'middle', 'font-size': 11, 'font-weight': 'bold', fill: '#111' }, t.name);
+    el('line', { x1: t.x, y1: t.y + HEAD, x2: t.x + t.w, y2: t.y + HEAD, stroke: t.novo ? '#27ae60' : '#222' });
+    el('line', { x1: t.x + KEYW, y1: t.y + HEAD, x2: t.x + KEYW, y2: t.y + h, stroke: t.novo ? '#27ae60' : '#222' });
+    t.rows.forEach(function (r, i) {
+      var ry = t.y + HEAD + ROW * i;
+      if (r[2]) el('rect', { x: t.x + 0.5, y: ry + 0.5, width: t.w - 1, height: ROW - 1, fill: '#d4efdf' });
+      if (r[0] === 'PK' && i === 0) el('line', { x1: t.x, y1: ry + ROW, x2: t.x + t.w, y2: ry + ROW, stroke: t.novo ? '#27ae60' : '#222' });
+      el('text', { x: t.x + KEYW / 2, y: ry + 15, 'text-anchor': 'middle', 'font-size': 10, 'font-weight': 'bold', fill: '#111' }, r[0]);
+      var tx = el('text', { x: t.x + KEYW + 7, y: ry + 15, 'font-size': 10, fill: r[2] ? '#1e8449' : '#111', 'font-weight': (r[0] === 'PK' || r[2]) ? 'bold' : 'normal', 'text-decoration': r[0] === 'PK' ? 'underline' : 'none' }, r[1]);
+    });
+  }
+  function rowY(t, i) { return t.y + HEAD + ROW * i + ROW / 2; }
+  function path(pts, color) { el('polyline', { points: pts.map(function (p) { return p.join(','); }).join(' '), fill: 'none', stroke: color || '#222', 'stroke-width': 1.2 }); }
+  // e = ponto na borda da tabela; d = direção apontando para fora da tabela
+  function one(e, d, color) {
+    [8, 13].forEach(function (k) {
+      var cx = e[0] + d[0] * k, cy = e[1] + d[1] * k;
+      el('line', { x1: cx - d[1] * 6, y1: cy - d[0] * 6, x2: cx + d[1] * 6, y2: cy + d[0] * 6, stroke: color || '#222', 'stroke-width': 1.2 });
+    });
+  }
+  function many(e, d, optional, color) {
+    var c = color || '#222', p = [e[0] + d[0] * 12, e[1] + d[1] * 12];
+    [-7, 0, 7].forEach(function (o) { el('line', { x1: p[0], y1: p[1], x2: e[0] + d[1] * o, y2: e[1] + d[0] * o, stroke: c, 'stroke-width': 1.2 }); });
+    if (optional) el('circle', { cx: e[0] + d[0] * 19, cy: e[1] + d[1] * 19, r: 4, fill: '#fff', stroke: c, 'stroke-width': 1.2 });
+    else { var q = [e[0] + d[0] * 17, e[1] + d[1] * 17]; el('line', { x1: q[0] - d[1] * 6, y1: q[1] - d[0] * 6, x2: q[0] + d[1] * 6, y2: q[1] + d[0] * 6, stroke: c, 'stroke-width': 1.2 }); }
+  }
+  for (var k in T) drawTable(T[k]);
+  var G = '#27ae60';
+  // tb_item 1 —— N tb_estoque
+  var a = [T.item.x, rowY(T.item, 0)], b = [T.estoque.x + T.estoque.w, rowY(T.estoque, 1)];
+  path([a, [242, a[1]], [242, b[1]], b]); one(a, [-1, 0]); many(b, [1, 0], false);
+  // tb_item 1 —— N tb_registro_item (opcional)
+  a = [T.item.x + T.item.w, rowY(T.item, 0)]; b = [T.registro.x, rowY(T.registro, 1)];
+  path([a, [512, a[1]], [512, b[1]], b]); one(a, [1, 0]); many(b, [-1, 0], true);
+  // tb_item 1 —— N tb_servico_item (novo)
+  var ib = T.item.y + HEAD + ROW * T.item.rows.length;
+  a = [380, ib]; b = [380, T.servItem.y];
+  path([a, b], G); one(a, [0, 1], G); many(b, [0, -1], true, G);
+  // tb_registro_servico 1 —— N tb_servico_item (novo)
+  a = [T.servico.x, rowY(T.servico, 0)]; b = [T.servItem.x + T.servItem.w, rowY(T.servItem, 1)];
+  path([a, [525, a[1]], [525, b[1]], b], G); one(a, [-1, 0], G); many(b, [1, 0], true, G);
+})();
+</script>
+</body>
+</html>

@@ -54,7 +54,8 @@ export const useEntityActions = (initialData, entityName) => {
                 if (refreshFn) await refreshFn(); // Chama o fetch do Zustand (ex: fetchItems)
                 closeActions();
             } else {
-                alert("Erro ao atualizar os dados no servidor.");
+                const body = await response.json().catch(() => ({}));
+                alert(body.message || "Erro ao atualizar os dados no servidor.");
             }
         } catch (error) {
             console.error(error);
@@ -78,7 +79,8 @@ export const useEntityActions = (initialData, entityName) => {
                 if (refreshFn) await refreshFn(); // Atualiza a tabela instantaneamente
                 closeActions();
             } else {
-                alert("Erro ao excluir o registro.");
+                const body = await response.json().catch(() => ({}));
+                alert(body.message || "Erro ao excluir o registro.");
             }
         } catch (error) {
             console.error(error);

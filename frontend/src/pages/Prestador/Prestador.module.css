@@ -1,0 +1,148 @@
+.pagina {
+    display: grid;
+    grid-template-columns: 3fr 2fr;
+    gap: 16px;
+    align-items: start;
+    padding: 20px 15px 24px 0;
+}
+
+.card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    border: 0.5px solid #e0e0e0;
+    color: #374151;
+}
+
+.titulo {
+    margin: 0 0 6px;
+    font-size: 17px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.descricao {
+    margin: 0 0 20px;
+    font-size: 14px;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px 16px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.campo input {
+    padding: 9px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 400;
+    color: #111827;
+}
+
+.campo input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 204, 255, 0.15);
+}
+
+.exibir {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    padding: 12px;
+    border-radius: 8px;
+    background: #f3f4f6;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.ok, .erro {
+    margin: 14px 0 0;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.ok { color: #15803d; }
+.erro { color: #dc2626; }
+
+.acoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.salvarBtn {
+    padding: 9px 22px;
+    border: 1px solid var(--primary-color);
+    border-radius: 6px;
+    background: var(--primary-color);
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.salvarBtn:hover:not(:disabled) {
+    background: white;
+    color: var(--primary-color);
+}
+
+.limparBtn {
+    padding: 9px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    color: #374151;
+    cursor: pointer;
+}
+
+.limparBtn:hover:not(:disabled) {
+    border-color: #dc2626;
+    color: #dc2626;
+}
+
+.salvarBtn:disabled, .limparBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.previa {
+    margin-top: 10px;
+    padding: 16px;
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
+    min-height: 90px;
+}
+
+.semDados {
+    margin: 0;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.dica {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+@media (max-width: 900px) {
+    .pagina { grid-template-columns: 1fr; }
+    .grid { grid-template-columns: 1fr; }
+}
