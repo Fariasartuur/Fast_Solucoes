@@ -30,7 +30,7 @@ const Home = () => {
         .filter(d => d.status === 'Paga')
         .reduce((acc, d) => acc + Number(d.valor || 0), 0);
     const totalPendentes = despesas
-        .filter(d => d.status === 'NÃO')
+        .filter(d => d.status === 'Pendente')
         .reduce((acc, d) => acc + Number(d.valor || 0), 0);
 
     return (
