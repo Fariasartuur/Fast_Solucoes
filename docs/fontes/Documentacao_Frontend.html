@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Documentação do Frontend</title>
+<link rel="stylesheet" href="estilo-docs.css">
+</head>
+<body>
+<div class="page">
+
+<h1>Documentação das Alterações no Frontend</h1>
+<div class="meta">Sistema Fast Soluções · React 19 + Vite + Zustand · 20/11/2026 · Visão geral em <code>Documentacao_Melhorias.pdf</code></div>
+
+<p>Este documento descreve, para os integrantes do grupo, tudo o que foi adicionado ou alterado no frontend (<code>frontend/src</code>): novas telas, componentes, camada de serviços, utilitários e o fluxo de cada funcionalidade. O objetivo é que todos consigam entender, usar e dar manutenção no código sem precisar reconstruir o raciocínio a partir do zero.</p>
+
+<div class="sumario">
+<b>Conteúdo</b>
+<ol>
+  <li>Organização das pastas</li>
+  <li>Rotas</li>
+  <li>Telas alteradas e novas</li>
+  <li>Componentes</li>
+  <li>Camada de serviços (API)</li>
+  <li>Stores (Zustand)</li>
+  <li>Utilitários</li>
+  <li>Fluxos principais</li>
+  <li>Impressão e PDF</li>
+  <li>Convenções e cuidados</li>
+  <li>Lista completa de arquivos</li>
+</ol>
+</div>
+
+<h2>1. Organização das pastas</h2>
+<p>A estrutura existente foi mantida. A camada de serviços foi ampliada e foram criadas novas pastas, separando responsabilidades que antes ficavam misturadas nas telas:</p>
+<table class="info">
+  <tr><th style="width:26%">Pasta</th><th>Responsabilidade</th></tr>
+  <tr><td><code>src/services/</code> <span class="badge b-alt">AMPLIADA</span></td><td>Chamadas HTTP ao backend. Cada arquivo agrupa as rotas de um assunto e devolve dados prontos ou lança <code>Error</code> com a mensagem do servidor.</td></tr>
+  <tr><td><code>src/utils/</code> <span class="badge b-novo">NOVA</span></td><td>Funções puras (sem React): formatação de moeda, datas, documentos, valor por extenso e cálculos de resumo. Podem ser testadas com Node, sem abrir o navegador.</td></tr>
+  <tr><td><code>src/pages/Prestador/</code> <span class="badge b-novo">NOVA</span></td><td>Tela "Meus dados" e o bloco reutilizável com os dados do prestador.</td></tr>
+  <tr><td><code>src/pages/DocumentoServico/</code> <span class="badge b-novo">NOVA</span></td><td>Página do recibo/orçamento (fora do layout com menu).</td></tr>
+  <tr><td><code>src/components/RecebimentosWidget/</code> <span class="badge b-novo">NOVA</span></td><td>Bloco de contas a receber da Home.</td></tr>
+</table>
+
+<h2>2. Rotas</h2>
+<table class="info">
+  <tr><th style="width:26%">Caminho</th><th style="width:22%">Tela</th><th>Observação</th></tr>
+  <tr><td><code>/</code></td><td>Home</td><td>Alterada: novo bloco de recebimentos.</td></tr>
+  <tr><td><code>/items</code></td><td>Itens (peças)</td><td>Alterada: preço de custo.</td></tr>
+  <tr><td><code>/servicos</code></td><td>Serviços</td><td>Alterada: peças, lucro, pagamento, documento.</td></tr>
+  <tr><td><code>/meus-dados</code></td><td>Meus dados</td><td><span class="badge b-novo">NOVA</span> Aparece no menu lateral (entrada <code>ROUTES.PRESTADOR</code>).</td></tr>
+  <tr><td><code>/documento/servico/:id</code></td><td>Recibo / Orçamento</td><td><span class="badge b-novo">NOVA</span> Fica <b>fora</b> do <code>MainLayout</code> (sem menu) e <b>fora</b> de <code>ROUTES</code>, porque o menu lateral lista todas as entradas de <code>ROUTES</code>. Constantes: <code>DOCUMENTO_SERVICO_PATH</code> e <code>documentoServicoUrl(id)</code> em <code>routes.constants.js</code>.</td></tr>
+</table>
+
+<h2>3. Telas alteradas e novas</h2>
+
+<div class="card">
+  <span class="tname">pages/Item</span><span class="badge b-alt">ALTERADA</span>
+  <ul>
+    <li><code>ItemModal.jsx</code>: campo opcional "Preço de custo (R$)". Campos numéricos vazios ficam <code>''</code> (antes viravam 0).</li>
+    <li><code>ItemAction.jsx</code>: exibe e edita o preço de custo; data normalizada para AAAA-MM-DD ao abrir a edição; "ID do Registro" removido.</li>
+    <li><code>Item.jsx</code>: coluna "Preço de custo" formatada em R$ (mapas <code>headerMap</code> e <code>accessorMap</code>).</li>
+  </ul>
+</div>
+
+<div class="card">
+  <span class="tname">pages/Servico</span><span class="badge b-alt">ALTERADA</span>
+  <ul>
+    <li><code>Servico.jsx</code>: colunas em ordem fixa (Contratante, Data, Tipo, Valor cobrado, Custo peças, Lucro, Status, Pago em) definidas no objeto <code>colunas</code>; campos novos vindos do backend que não estejam no objeto aparecem no fim automaticamente. Passa <code>statusOptions</code> (filtro) e <code>extraActions</code> (ícone de documento) para a <code>Table</code>. Ao excluir, atualiza também o estoque.</li>
+    <li><code>ServicoModal.jsx</code> (cadastro): usa <code>PecasServico</code> em <b>modo local</b> (peças guardadas no estado e enviadas junto com o serviço) e a opção "Já recebido em [data]".</li>
+    <li><code>ServicoAction.jsx</code> (detalhes ⋯): bloco "Pagamento" (marcar como pago/desfazer), <code>PecasServico</code> em <b>modo imediato</b> (cada ação grava no banco) e botão "Ver recibo"/"Ver orçamento". Corrigido o título "Editando: undefined".</li>
+    <li><code>PecasServico.jsx</code> e <code>StatusBadge.jsx</code>: novos componentes (seção 4).</li>
+  </ul>
+</div>
+
+<div class="card">
+  <span class="tname">pages/Home</span><span class="badge b-alt">ALTERADA</span>
+  <p>Inclui <code>&lt;RecebimentosWidget servicos={servicos} /&gt;</code> entre "Desempenho" e as listas. Os serviços passam a ser <b>sempre</b> recarregados ao abrir a Home, para os valores a receber estarem atualizados.</p>
+</div>
+
+<div class="card verde">
+  <span class="tname">pages/Prestador</span><span class="badge b-novo">NOVA</span>
+  <p><code>Prestador.jsx</code>: formulário "Meus dados" com seis campos opcionais (nome, CPF/CNPJ, telefone, e-mail, cidade, chave PIX), a opção "Mostrar meus dados nos recibos e orçamentos", botões Salvar/Limpar campos, mensagens de sucesso/erro na própria tela e <b>prévia ao vivo</b> usando o mesmo componente do documento (<code>DadosPrestador</code>). Carrega com <code>GET /prestador</code> e salva com <code>PUT /prestador</code>.</p>
+</div>
+
+<div class="card verde">
+  <span class="tname">pages/DocumentoServico</span><span class="badge b-novo">NOVA</span>
+  <p><code>DocumentoServico.jsx</code>: lê o <code>:id</code> da URL e busca serviço, peças e prestador em paralelo (<code>carregarDocumentoServico</code>). Monta uma folha A4 com título automático (<b>Recibo</b> se <code>status === 'Pago'</code>, senão <b>Orçamento</b>), cabeçalho com prestador (apenas se <code>exibir_nos_documentos</code> e houver dados), cliente, serviço, peças (somente nome/modelo e quantidade, <b>sem custo</b>), total com valor por extenso e, conforme o tipo, declaração + assinatura (recibo) ou situação + PIX (orçamento). Define <code>document.title</code>, que vira o nome sugerido do PDF. Tem uma barra de ações (Imprimir / Salvar PDF e Fechar) que não aparece na impressão.</p>
+</div>
+
+<h2>4. Componentes</h2>
+
+<h3>PecasServico <span class="badge b-novo">NOVO</span></h3>
+<p>Seção "Peças usadas" de um serviço. <b>Não grava nada sozinha</b>: avisa o componente pai pelos callbacks. Assim o mesmo visual atende ao cadastro (lista local) e aos detalhes (gravação imediata).</p>
+<table class="info">
+  <tr><th style="width:22%">Prop</th><th>Descrição</th></tr>
+  <tr><td><code>pecas</code></td><td>Lista <code>[{ id_item, nome_item, modelo, quantidade, custo_unitario }]</code>.</td></tr>
+  <tr><td><code>reservado</code></td><td><code>{ [id_item]: quantidade }</code> já escolhida e ainda não descontada do estoque (usado no cadastro, para não oferecer mais do que existe).</td></tr>
+  <tr><td><code>onAdd(idItem, qtd)</code></td><td>Adicionar peça. Se retornar <code>false</code>, o seletor não é limpo.</td></tr>
+  <tr><td><code>onChangeQtd(idItem, qtd)</code> / <code>onRemove(idItem)</code></td><td>Botões − / + e lixeira.</td></tr>
+  <tr><td><code>busy</code></td><td>Desabilita os controles durante uma operação.</td></tr>
+  <tr><td><code>valorCobrado</code></td><td>Opcional. Quando informado, exibe "Lucro do serviço" (verde/vermelho).</td></tr>
+</table>
+<p>Ao montar, busca peças e estoque com <code>{ silent: true }</code>. O saldo de cada peça é a soma dos registros de estoque dela; o seletor lista só peças com saldo disponível, no formato "Nome (Modelo) — disp. N".</p>
+
+<h3>Table <span class="badge b-alt">ALTERADO</span></h3>
+<table class="info">
+  <tr><th style="width:22%">Novidade</th><th>Descrição</th></tr>
+  <tr><td><code>statusOptions</code></td><td>Opcional, <code>[{ value, label }]</code>. Exibe um <code>select</code> que filtra pela coluna <code>status</code>. "Limpar Filtros" também o reseta.</td></tr>
+  <tr><td><code>extraActions</code></td><td>Opcional, <code>[{ icon, title(row), onClick(row) }]</code>. Ícones extras na coluna "Ações" (ex.: documento em Serviços).</td></tr>
+  <tr><td>Ordenação genérica</td><td>Um <code>sortKey</code> que não seja <code>name/date/value/quantity</code> ordena numericamente pelo próprio campo (ex.: <code>lucro</code>, <code>custo_pecas</code>).</td></tr>
+</table>
+<p>As outras telas não passam as props novas e continuam iguais. <code>TableActions.jsx</code> ganhou o caso de Serviços, que antes mostrava "Conteúdo não mapeado".</p>
+
+<h3>Outros componentes novos</h3>
+<table class="info">
+  <tr><th style="width:26%">Componente</th><th>Descrição</th></tr>
+  <tr><td><code>StatusBadge</code></td><td>Etiqueta "Pago" (verde) ou "Pendente · N dias" (laranja). Usada na tabela e nos detalhes.</td></tr>
+  <tr><td><code>RecebimentosWidget</code></td><td>Cards "A receber" e "Recebido no mês" e lista "Quem está devendo" (até 5 academias, "+ N" se houver mais, botão "Ver serviços"). O cálculo fica em <code>utils/recebimentos.js</code>.</td></tr>
+  <tr><td><code>DadosPrestador</code></td><td>Bloco com os dados do prestador, mostrando apenas os campos preenchidos (CPF/CNPJ e telefone formatados). Usado na prévia de "Meus dados" e no documento.</td></tr>
+</table>
+
+<h2>5. Camada de serviços (API)</h2>
+<p>Todas as chamadas novas usam a função <code>request</code> de <code>services/api.js</code>: envia JSON quando há corpo e, se a resposta não for 2xx, <b>lança um <code>Error</code> com o campo <code>message</code> do backend</b> (ex.: "Estoque insuficiente de ..."). Assim a tela só precisa de <code>try/catch</code> e <code>alert(error.message)</code> ou de exibir a mensagem.</p>
+<table class="info">
+  <tr><th style="width:28%">Arquivo</th><th style="width:36%">Funções</th><th>Rotas</th></tr>
+  <tr><td><code>api.js</code></td><td><code>request(url, options)</code></td><td>—</td></tr>
+  <tr><td><code>servicoPecasService.js</code></td><td><code>listarPecas</code>, <code>adicionarPeca</code>, <code>alterarQuantidadePeca</code>, <code>removerPeca</code></td><td><code>/servico/:id/pecas</code> e <code>/servico/:id/pecas/:idItem</code></td></tr>
+  <tr><td><code>pagamentoService.js</code></td><td><code>marcarComoPago(id, data?)</code>, <code>desfazerPagamento(id)</code></td><td><code>PUT /servico/:id/pagamento</code></td></tr>
+  <tr><td><code>prestadorService.js</code></td><td><code>buscarPrestador</code>, <code>salvarPrestador</code></td><td><code>GET/PUT /prestador</code></td></tr>
+  <tr><td><code>documentoService.js</code></td><td><code>carregarDocumentoServico(id)</code></td><td><code>GET /servico/:id</code> + peças + prestador (em paralelo)</td></tr>
+</table>
+<p>Endpoints em <code>constants/apiUrl.constants.js</code>; foi adicionado <code>PRESTADOR_ENDPOINT</code>.</p>
+
+<h2>6. Stores (Zustand)</h2>
+<table class="info">
+  <tr><th style="width:26%">Store</th><th>Alteração</th></tr>
+  <tr><td><code>useItemStore</code></td><td><code>fetchItems({ silent })</code>: com <code>silent: true</code> atualiza sem ligar o <code>loading</code> (evita o "Carregando..." piscar nas tabelas). <code>addItem</code> repassa o erro com a mensagem do servidor.</td></tr>
+  <tr><td><code>useEstoqueStore</code></td><td><code>fetchEstoque({ silent })</code>, mesma ideia. Usado sempre que o estoque muda por causa de Serviços.</td></tr>
+  <tr><td><code>useServicoStore</code></td><td><code>addServico</code> devolve o <code>id_registro_servico</code> criado e repassa o erro com a mensagem do servidor.</td></tr>
+</table>
+<p>O hook <code>useEntityActions</code> (edição e exclusão genéricas) passou a exibir a mensagem enviada pelo backend em caso de erro.</p>
+
+<h2>7. Utilitários</h2>
+<table class="info">
+  <tr><th style="width:28%">Arquivo</th><th>Funções</th></tr>
+  <tr><td><code>utils/formatters.js</code></td><td><code>formatBRL</code> (R$), <code>hojeISO</code>, <code>dataISO</code> (remove o "T..." das datas do banco), <code>formatDataBR</code> (dd/mm/aaaa), <code>diasDesde</code>, <code>textoDias</code> ("hoje", "1 dia", "12 dias"), <code>formatDocumento</code> (CPF/CNPJ), <code>formatTelefone</code>.</td></tr>
+  <tr><td><code>utils/extenso.js</code></td><td><code>valorPorExtenso</code> (ex.: 1230,50 → "mil duzentos e trinta reais e cinquenta centavos"; testado com 22 casos, até milhões) e <code>dataPorExtenso</code> ("20 de novembro de 2026").</td></tr>
+  <tr><td><code>utils/recebimentos.js</code></td><td><code>resumoRecebimentos(servicos)</code>: total a receber, recebido no mês e devedores agrupados por academia (ignorando maiúsculas e espaços), do mais antigo para o mais recente.</td></tr>
+  <tr><td><code>utils/prestador.js</code></td><td><code>preenchido</code>, <code>temDadosPrestador</code>.</td></tr>
+</table>
+
+<h2>8. Fluxos principais</h2>
+
+<h3>Cadastrar serviço com peças</h3>
+<div class="fluxo">
+  <div class="passo"><b>ServicoModal</b>Usuário preenche dados e adiciona peças (estado local).</div><div class="seta">→</div>
+  <div class="passo"><b>PecasServico</b>Calcula disponível = saldo − reservado; mostra custo e lucro.</div><div class="seta">→</div>
+  <div class="passo"><b>addServico</b><code>POST /servico</code> com <code>pecas</code> (e status se "Já recebido").</div><div class="seta">→</div>
+  <div class="passo"><b>Backend</b>Grava tudo em uma transação ou devolve erro 409.</div><div class="seta">→</div>
+  <div class="passo"><b>Tela</b>Atualiza serviços e estoque (<code>silent</code>).</div>
+</div>
+
+<h3>Alterar peças de um serviço existente</h3>
+<div class="fluxo">
+  <div class="passo"><b>ServicoAction</b>Carrega <code>GET /servico/:id/pecas</code>.</div><div class="seta">→</div>
+  <div class="passo"><b>Ação</b>Adicionar / − / + / remover chama a rota correspondente.</div><div class="seta">→</div>
+  <div class="passo"><b>Sempre</b>Recarrega peças, estoque e tabela (custo e lucro).</div><div class="seta">→</div>
+  <div class="passo"><b>Erro</b><code>alert</code> com a mensagem do backend.</div>
+</div>
+
+<h3>Pagamento e documento</h3>
+<div class="fluxo">
+  <div class="passo"><b>Marcar como pago</b><code>PUT /servico/:id/pagamento</code>; etiqueta atualiza na hora.</div><div class="seta">→</div>
+  <div class="passo"><b>Ver recibo</b><code>window.open(documentoServicoUrl(id))</code> em nova aba.</div><div class="seta">→</div>
+  <div class="passo"><b>Documento</b>Busca serviço, peças e prestador; escolhe Recibo/Orçamento.</div><div class="seta">→</div>
+  <div class="passo"><b>PDF</b><code>window.print()</code> → "Salvar como PDF".</div>
+</div>
+
+<h2>9. Impressão e PDF</h2>
+<p>O PDF é gerado pela impressão do próprio navegador (sem biblioteca extra). As regras ficam em <code>DocumentoServico.module.css</code>:</p>
+<ul>
+  <li><code>@page { size: A4; margin: 15mm; }</code>.</li>
+  <li>Em <code>@media print</code>: some a barra de ações, o fundo cinza e a sombra; a folha ocupa a largura útil.</li>
+  <li><b>Importante:</b> o <code>index.css</code> do projeto define <code>body { overflow: hidden }</code>. Na impressão isso cortaria documentos com mais de uma página, por isso <code>html</code>, <code>body</code> e <code>#root</code> são liberados com <code>overflow: visible</code> apenas no modo impressão.</li>
+  <li><code>break-inside: avoid</code> em linhas de tabela, no quadro do total e no bloco declaração + assinatura (que vão juntos para a próxima página se não couberem). O cabeçalho da tabela se repete automaticamente em cada página.</li>
+  <li><code>print-color-adjust: exact</code> mantém os fundos cinza das tabelas.</li>
+</ul>
+
+<h2>10. Convenções e cuidados</h2>
+<ul>
+  <li><b>Datas:</b> o backend devolve datas como <code>"2026-11-20T03:00:00.000Z"</code>, mas o MySQL só aceita <code>"2026-11-20"</code> de volta. Use <code>dataISO()</code> antes de preencher um <code>&lt;input type="date"&gt;</code> ou de reenviar a data.</li>
+  <li><b>Mensagens de erro:</b> não escreva mensagens genéricas; mostre <code>error.message</code>, que já vem explicativa do backend.</li>
+  <li><b>Custo das peças</b> é informação interna: aparece nas telas do sistema, nunca no recibo/orçamento.</li>
+  <li><b>Lint:</b> funções e constantes compartilhadas ficam em <code>utils/</code>, não em arquivos de componente (regra <code>react-refresh/only-export-components</code>).</li>
+  <li><b>Vite no Windows:</b> várias edições rápidas no mesmo arquivo podem não ser percebidas pelo servidor de desenvolvimento, que continua servindo a versão antiga (tela em branco ou rota "não encontrada"). Reiniciar o <code>npm run dev</code> resolve.</li>
+</ul>
+
+<h2>11. Lista completa de arquivos</h2>
+<table class="info">
+  <tr><th style="width:50%">Arquivo</th><th style="width:14%">Situação</th><th>Resumo</th></tr>
+  <tr><td><code>App.jsx</code></td><td>Alterado</td><td>Rotas <code>/meus-dados</code> e <code>/documento/servico/:id</code>.</td></tr>
+  <tr><td><code>constants/routes.constants.js</code></td><td>Alterado</td><td><code>ROUTES.PRESTADOR</code>, <code>DOCUMENTO_SERVICO_PATH</code>, <code>documentoServicoUrl</code>.</td></tr>
+  <tr><td><code>constants/apiUrl.constants.js</code></td><td>Alterado</td><td><code>PRESTADOR_ENDPOINT</code>.</td></tr>
+  <tr><td><code>components/Table/Table.jsx</code> e <code>.module.css</code></td><td>Alterado</td><td><code>statusOptions</code>, <code>extraActions</code>, ordenação genérica.</td></tr>
+  <tr><td><code>components/Table/TableActions.jsx</code></td><td>Alterado</td><td>Caso de Serviços.</td></tr>
+  <tr><td><code>components/RecebimentosWidget/*</code></td><td>Novo</td><td>Bloco de recebimentos da Home.</td></tr>
+  <tr><td><code>hooks/useEntityActions.js</code></td><td>Alterado</td><td>Mensagens de erro do backend.</td></tr>
+  <tr><td><code>pages/Home/Home.jsx</code></td><td>Alterado</td><td>Inclui <code>RecebimentosWidget</code>.</td></tr>
+  <tr><td><code>pages/Item/Item.jsx</code>, <code>ItemModal.jsx</code>, <code>ItemAction.jsx</code></td><td>Alterado</td><td>Preço de custo, datas, ID removido.</td></tr>
+  <tr><td><code>pages/Estoque/EstoqueAction.jsx</code></td><td>Alterado</td><td>"ID do Registro" removido.</td></tr>
+  <tr><td><code>pages/Servico/Servico.jsx</code>, <code>ServicoModal.jsx</code>, <code>ServicoAction.jsx</code>, <code>Servico.module.css</code></td><td>Alterado</td><td>Peças, lucro, pagamento, documento.</td></tr>
+  <tr><td><code>pages/Servico/PecasServico.jsx</code> e <code>.module.css</code>, <code>StatusBadge.jsx</code></td><td>Novo</td><td>Seção de peças e etiqueta de status.</td></tr>
+  <tr><td><code>pages/Prestador/*</code></td><td>Novo</td><td>Tela "Meus dados" e <code>DadosPrestador</code>.</td></tr>
+  <tr><td><code>pages/DocumentoServico/*</code></td><td>Novo</td><td>Recibo/Orçamento e regras de impressão.</td></tr>
+  <tr><td><code>services/api.js</code>, <code>servicoPecasService.js</code>, <code>pagamentoService.js</code>, <code>prestadorService.js</code>, <code>documentoService.js</code></td><td>Novo</td><td>Chamadas à API.</td></tr>
+  <tr><td><code>store/useItemStore.js</code>, <code>useEstoqueStore.js</code>, <code>useServicoStore.js</code></td><td>Alterado</td><td><code>silent</code>, retorno de id e erros.</td></tr>
+  <tr><td><code>utils/formatters.js</code>, <code>extenso.js</code>, <code>recebimentos.js</code>, <code>prestador.js</code></td><td>Novo</td><td>Funções puras de formatação e cálculo.</td></tr>
+</table>
+
+</div>
+</body>
+</html>

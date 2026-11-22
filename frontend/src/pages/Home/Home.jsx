@@ -9,6 +9,7 @@ import { useEstoqueStore } from '../../store/useEstoqueStore.js';
 import { useServicoStore } from '../../store/useServicoStore.js';
 import { ROUTES } from '../../constants/routes.constants.js';
 import CalendarWidget from '../../components/CalendarWidget/CalendarWidget.jsx';
+import RecebimentosWidget from '../../components/RecebimentosWidget/RecebimentosWidget.jsx';
 
 import logo from '../../../public/logo.png';
 
@@ -22,7 +23,8 @@ const Home = () => {
         if (despesas.length === 0) fetchDespesas();
         if (items.length === 0) fetchItems();
         if (estoque.length === 0) fetchEstoque();
-        if (servicos.length === 0) fetchServicos();
+        // Serviços são sempre recarregados: os valores a receber precisam estar atualizados.
+        fetchServicos();
     }, []);
 
     const totalDespesas = despesas.reduce((acc, d) => acc + Number(d.valor || 0), 0);
@@ -73,6 +75,10 @@ const Home = () => {
                         <p className={`${styles.valor} ${styles.azul}`}>{despesas.length}</p>
                     </div>
                 </div>
+            </section>
+
+            <section>
+                <RecebimentosWidget servicos={servicos} />
             </section>
 
             <section className={styles.atualizacoes}>

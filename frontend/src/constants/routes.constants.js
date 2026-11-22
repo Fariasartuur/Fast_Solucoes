@@ -34,4 +34,13 @@ export const ROUTES = {
         name: 'Serviços',
         icon: 'build'
     },
+    PRESTADOR: {
+        path: '/meus-dados',
+        name: 'Meus dados',
+        icon: 'badge'
+    },
 }
+
+// Página do recibo/orçamento. Fica fora de ROUTES porque não aparece no menu lateral.
+export const DOCUMENTO_SERVICO_PATH = '/documento/servico/:id';
+export const documentoServicoUrl = (idServico) => `/documento/servico/${idServico}`;

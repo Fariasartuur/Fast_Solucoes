@@ -1,0 +1,323 @@
+/* Fundo cinza com a "folha" A4 centralizada. O body do sistema tem
+   overflow: hidden, por isso o fundo tem a própria rolagem. */
+.fundo {
+    height: 100vh;
+    overflow-y: auto;
+    background: #e5e7eb;
+    padding: 32px 16px;
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    color: #1f2937;
+}
+
+.aviso {
+    max-width: 794px;
+    margin: 0 auto;
+    padding: 24px;
+    background: white;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.folha {
+    width: 100%;
+    max-width: 794px;          /* largura de uma folha A4 (210 mm) */
+    min-height: 1123px;        /* altura de uma folha A4 (297 mm) */
+    margin: 0 auto;
+    padding: 56px 60px;
+    background: white;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Cabeçalho */
+.cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #1f2937;
+}
+
+.cabecalhoSemPrestador {
+    justify-content: flex-end;
+}
+
+.identificacao {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+    font-size: 13px;
+    color: #4b5563;
+    white-space: nowrap;
+}
+
+.titulo {
+    margin: 0 0 4px;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #111827;
+}
+
+/* Blocos de conteúdo */
+.bloco {
+    margin-top: 26px;
+}
+
+.bloco h2,
+.pagamento h2 {
+    margin: 0 0 8px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.cliente {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 600;
+}
+
+.tabela {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabela th {
+    padding: 8px 10px;
+    background: #f3f4f6;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 700;
+    color: #374151;
+}
+
+.tabela td {
+    padding: 9px 10px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.direita {
+    text-align: right !important;
+}
+
+.nota {
+    margin: 6px 0 0;
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* Total */
+.total {
+    margin-top: 28px;
+    padding: 16px 20px;
+    border: 2px solid #1f2937;
+    border-radius: 6px;
+}
+
+.totalLinha {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.totalLinha strong {
+    font-size: 24px;
+}
+
+.extenso {
+    display: block;
+    margin-top: 4px;
+    font-size: 13px;
+    color: #4b5563;
+    font-style: italic;
+}
+
+/* Recibo: declaração e assinatura */
+.declaracao {
+    margin: 28px 0 0;
+    text-align: justify;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+.assinatura {
+    margin-top: 56px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.localData {
+    margin-bottom: 40px;
+}
+
+.linhaAssinatura {
+    width: 320px;
+    max-width: 100%;
+    border-top: 1px solid #111827;
+}
+
+/* Orçamento: pagamento */
+.pagamento {
+    margin-top: 28px;
+}
+
+.pagamento p {
+    margin: 0 0 4px;
+}
+
+.rodape {
+    margin-top: auto;
+    padding-top: 24px;
+    font-size: 11px;
+    color: #9ca3af;
+    text-align: center;
+}
+
+/* Barra de ações (somente na tela) */
+.barra {
+    max-width: 794px;
+    margin: 0 auto 16px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    background: #1f2937;
+    color: #e5e7eb;
+    border-radius: 8px;
+    font-size: 13px;
+}
+
+.barraTexto {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.barraTexto strong {
+    color: white;
+    font-size: 14px;
+}
+
+.barraBotoes {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.botaoPrincipal,
+.botaoSecundario {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.botaoPrincipal {
+    border: 1px solid var(--primary-color);
+    background: var(--primary-color);
+    color: #0b1b24;
+}
+
+.botaoPrincipal:hover {
+    filter: brightness(1.1);
+}
+
+.botaoPrincipal :global(.material-symbols-rounded) {
+    font-size: 20px;
+}
+
+.botaoSecundario {
+    border: 1px solid #6b7280;
+    background: transparent;
+    color: #e5e7eb;
+}
+
+.botaoSecundario:hover {
+    border-color: #e5e7eb;
+}
+
+@media (max-width: 640px) {
+    .folha { padding: 28px 20px; min-height: 0; }
+    .cabecalho { flex-direction: column-reverse; }
+    .identificacao { align-items: flex-start; text-align: left; }
+    .barra { flex-direction: column; align-items: stretch; }
+}
+
+/* ===== Impressão / PDF =====
+   Folha A4 com margens de 15 mm; some o fundo cinza, a sombra e a barra de ações.
+   O body do sistema tem overflow: hidden, que cortaria documentos com mais de
+   uma página — por isso ele é liberado aqui. */
+@page {
+    size: A4;
+    margin: 15mm;
+}
+
+@media print {
+    :global(html),
+    :global(body),
+    :global(#root) {
+        height: auto !important;
+        overflow: visible !important;
+        background: white !important;
+    }
+
+    .barra {
+        display: none !important;
+    }
+
+    .fundo {
+        height: auto;
+        overflow: visible;
+        padding: 0;
+        background: white;
+    }
+
+    .folha {
+        max-width: none;
+        min-height: 0;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    /* Mantém os fundos cinza das tabelas e as bordas ao imprimir */
+    .folha,
+    .folha * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Evita quebrar no meio: linhas de tabela, o total e o fechamento
+       (declaração + assinatura, que vão juntos para a próxima página se preciso) */
+    .tabela tr,
+    .total,
+    .fechamento {
+        break-inside: avoid;
+    }
+
+    .assinatura {
+        margin-top: 36px;
+    }
+
+    .localData {
+        margin-bottom: 32px;
+    }
+}

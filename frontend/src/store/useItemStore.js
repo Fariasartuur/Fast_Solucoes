@@ -4,8 +4,9 @@ export const useItemStore = create((set) => ({
     items: [],
     loading: false,
 
-    fetchItems: async () => {
-        set({ loading: true });
+    // "silent" atualiza os dados sem ativar o "Carregando..." das tabelas.
+    fetchItems: async ({ silent = false } = {}) => {
+        if (!silent) set({ loading: true });
         try {
             const response = await fetch('http://localhost:3333/item');
             const data = await response.json();
@@ -25,13 +26,15 @@ export const useItemStore = create((set) => ({
                 body: JSON.stringify(itemData),
             });
             if (!response.ok) {
-                throw new Error(`Erro ${response.status}`);
+                const body = await response.json().catch(() => ({}));
+                throw new Error(body.message || `Erro ${response.status}`);
             }
 
             await useItemStore.getState().fetchItems();
         } catch (error) {
             console.error("Erro ao adicionar item:", error);
             set({ loading: false });
+            throw error; // repassa para o modal exibir a mensagem de erro
         }
     },
 
