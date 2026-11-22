@@ -4,8 +4,10 @@ export const useEstoqueStore = create((set) => ({
     estoque: [],
     loading: false,
 
-    fetchEstoque: async () => {
-        set({ loading: true });
+    // "silent" atualiza os dados sem ativar o "Carregando..." das tabelas
+    // (usado quando o estoque muda por causa de outra tela, ex.: Serviços).
+    fetchEstoque: async ({ silent = false } = {}) => {
+        if (!silent) set({ loading: true });
         try {
             const response = await fetch('http://localhost:3333/estoque');
             const data = await response.json();

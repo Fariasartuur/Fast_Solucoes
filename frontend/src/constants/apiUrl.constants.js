@@ -3,3 +3,4 @@ export const DESPESAS_ENDPOINT = `${API_URL}/despesas`;
 export const ITEM_ENDPOINT = `${API_URL}/item`;
 export const ESTOQUE_ENDPOINT = `${API_URL}/estoque`;
 export const SERVICO_ENDPOINT = `${API_URL}/servico`;
+export const PRESTADOR_ENDPOINT = `${API_URL}/prestador`;

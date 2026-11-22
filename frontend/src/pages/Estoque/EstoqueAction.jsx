@@ -49,9 +49,6 @@ const EstoqueAction = ({ estoque }) => {
                 <div className={style.info}>
                     <h1 className={style.titulo}>{estoque.produto || estoque.nome_item}</h1>
 
-                    <label className={style.label}>ID do Registro:</label>
-                    <p className={style.tipo}>{estoque.id_estoque}</p>
-
                     <label className={style.label}>Quantidade em Estoque:</label>
                     <p className={style.quantidade}>{estoque.quantidade} unidades</p>
                 </div>

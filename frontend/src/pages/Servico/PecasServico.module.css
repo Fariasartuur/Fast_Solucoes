@@ -1,0 +1,202 @@
+.secao {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.titulo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.titulo :global(.material-symbols-rounded) {
+    font-size: 20px;
+    color: var(--primary-color);
+}
+
+.vazio {
+    margin: 0;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.lista {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.linha {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.nome {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.detalhe {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+.qtd {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.qtd span {
+    min-width: 20px;
+    text-align: center;
+}
+
+.qtd button {
+    width: 26px;
+    height: 26px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    color: #374151;
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.qtd button:hover:not(:disabled) {
+    border-color: var(--primary-color);
+    color: var(--primary-hover);
+}
+
+.remover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #dc3545;
+    cursor: pointer;
+}
+
+.remover:hover:not(:disabled) {
+    background: #fdecee;
+}
+
+.remover :global(.material-symbols-rounded) {
+    font-size: 20px;
+}
+
+.adicionar {
+    display: flex;
+    gap: 8px;
+}
+
+.select {
+    flex: 1;
+    min-width: 0;
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #374151;
+    background: white;
+}
+
+.qtdInput {
+    width: 64px;
+    padding: 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #374151;
+}
+
+.addBtn {
+    padding: 8px 12px;
+    border: 1px solid var(--primary-color);
+    border-radius: 4px;
+    background: var(--primary-color);
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.addBtn:hover:not(:disabled) {
+    background: white;
+    color: var(--primary-color);
+}
+
+.aviso {
+    margin: 0;
+    font-size: 12px;
+    color: #b45309;
+}
+
+.total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #eef9fc;
+    font-size: 14px;
+    color: #1f2937;
+}
+
+.totalLucro {
+    background: #ecfdf3;
+}
+
+.totalLucro strong {
+    color: #16a34a;
+}
+
+.totalPrejuizo {
+    background: #fdecee;
+}
+
+.totalPrejuizo strong {
+    color: #dc2626;
+}
+
+.secao button:disabled,
+.secao select:disabled,
+.secao input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}

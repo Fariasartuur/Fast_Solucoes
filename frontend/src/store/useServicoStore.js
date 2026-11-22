@@ -16,6 +16,8 @@ export const useServicoStore = create((set) => ({
         }
     },
 
+    // Cria o serviço (opcionalmente com "pecas") e devolve o id criado.
+    // Em caso de erro, repassa a mensagem do servidor para quem chamou.
     addServico: async (servicoData) => {
         set({ loading: true });
         try {
@@ -24,14 +26,17 @@ export const useServicoStore = create((set) => ({
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(servicoData),
             });
+            const body = await response.json().catch(() => ({}));
             if (!response.ok) {
-                throw new Error(`Erro ${response.status}`);
+                throw new Error(body.message || `Erro ${response.status}`);
             }
 
             await useServicoStore.getState().fetchServicos();
+            return body.id_registro_servico;
         } catch (error) {
             console.error("Erro ao adicionar servico:", error);
             set({ loading: false });
+            throw error;
         }
     },
 

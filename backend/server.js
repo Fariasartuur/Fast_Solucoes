@@ -25,7 +25,17 @@ import { registro } from './registro_itens.js';
 
 import { servico } from './servico.js';
 
-const server = fastify();   
+import { Database_servico_item } from './database_servico_item.js';
+
+import { servicoItem } from './servico_item.js';
+
+import { Database_prestador } from './database_prestador.js';
+
+import { prestador } from './prestador.js';
+
+const server = fastify();
+
+const database_servico_item = new Database_servico_item();
 
 const database_itens = new Database_itens();
 
@@ -56,6 +66,10 @@ server.decorate('db_registro', database_registro);
 
 server.decorate('db_servico', database_servico);
 
+server.decorate('db_servico_item', database_servico_item);
+
+server.decorate('db_prestador', new Database_prestador());
+
 server.register(estoque);
 
 server.register(item);
@@ -67,6 +81,9 @@ server.register(usuarios);
 server.register(registro);
 
 server.register(servico);
+
+server.register(servicoItem);
+server.register(prestador);
 
 const PORT = Number(process.env.PORT) || 3333;
 

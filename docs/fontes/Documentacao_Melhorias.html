@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Melhorias do Sistema</title>
+<link rel="stylesheet" href="estilo-docs.css">
+</head>
+<body>
+<div class="page">
+
+<h1>Documentação das Melhorias do Sistema</h1>
+<div class="meta">Sistema Fast Soluções · Projeto Integrador · 20/11/2026 · Documentos complementares: <code>Documentacao_Frontend.pdf</code>, <code>Documentacao_Backend.pdf</code> e <code>Documentacao_Alteracoes_Banco_de_Dados.pdf</code></div>
+
+<p>Este documento apresenta, de forma geral, as melhorias implementadas no sistema Fast Soluções: o que foi feito, como usar cada funcionalidade e, principalmente, <b>como cada melhoria ajuda o público-alvo</b> no dia a dia. Os detalhes técnicos estão nos documentos de frontend, backend e banco de dados.</p>
+
+<div class="resumo">
+  <div><b>3</b><span>funcionalidades principais (peças no serviço, contas a receber e recibo/orçamento)</span></div>
+  <div><b>13</b><span>etapas implementadas e validadas uma a uma</span></div>
+  <div><b>3</b><span>migrações de banco de dados, todas documentadas e reversíveis</span></div>
+</div>
+
+<div class="sumario">
+<b>Conteúdo</b>
+<ol>
+  <li>Público-alvo e problema</li>
+  <li>Visão geral das melhorias</li>
+  <li>Peças usadas no serviço e lucro</li>
+  <li>Contas a receber</li>
+  <li>Recibo e orçamento em PDF</li>
+  <li>Fluxo de trabalho do técnico</li>
+  <li>Correções feitas durante o projeto</li>
+  <li>Banco de dados e como atualizar</li>
+  <li>Pontos de atenção</li>
+  <li>Etapas e documentos gerados</li>
+</ol>
+</div>
+
+<h2>1. Público-alvo e problema</h2>
+<p>O sistema é usado por <b>um único técnico autônomo que conserta equipamentos de academias de terceiros</b>. No dia a dia ele compra peças, usa essas peças nos consertos e cobra das academias pelo serviço. Antes das melhorias, ele não guardava notas nem registrava de forma organizada o que comprou e o que usou: ia fazendo os serviços e anotando tudo. Com isso, não conseguia responder perguntas básicas do próprio negócio:</p>
+<ul>
+  <li><b>Quanto eu realmente ganhei neste serviço</b>, descontando as peças que usei?</li>
+  <li><b>Quais peças ainda tenho</b> e quais acabaram?</li>
+  <li><b>Quem ainda está me devendo</b>, quanto e há quanto tempo?</li>
+  <li><b>Como entrego um comprovante profissional</b> para a academia (orçamento ou recibo)?</li>
+</ul>
+<p>As melhorias foram escolhidas para responder exatamente essas perguntas, aproveitando o que o sistema já tinha (cadastro de itens/peças, estoque, serviços e despesas) e ligando essas informações entre si.</p>
+
+<h2>2. Visão geral das melhorias</h2>
+<table class="info">
+  <tr><th style="width:22%">Melhoria</th><th style="width:38%">O que faz</th><th>Como ajuda o técnico</th></tr>
+  <tr><td><b>Preço de custo das peças</b></td><td>Cada peça cadastrada pode ter o valor pago por unidade.</td><td>Passa a saber quanto gasta com material, base para calcular o lucro.</td></tr>
+  <tr><td><b>Peças usadas no serviço</b></td><td>Ao lançar um serviço, informa quais peças usou; o estoque baixa sozinho.</td><td>O estoque fica sempre certo sem contagem manual, e o sistema impede "usar" peça que não tem.</td></tr>
+  <tr><td><b>Lucro por serviço</b></td><td>Mostra custo das peças e lucro (valor cobrado − peças) de cada serviço, com destaque para prejuízo.</td><td>Descobre quais serviços compensam e se está cobrando pouco.</td></tr>
+  <tr><td><b>Contas a receber</b></td><td>Cada serviço é "Pago" ou "Pendente", com data de recebimento e dias em aberto.</td><td>Não esquece de cobrar ninguém e sabe há quanto tempo cada valor está pendente.</td></tr>
+  <tr><td><b>Painel de recebimentos</b></td><td>Na tela inicial: total a receber, recebido no mês e lista de quem está devendo.</td><td>Ao abrir o sistema, vê a situação financeira e quem cobrar primeiro.</td></tr>
+  <tr><td><b>Meus dados</b></td><td>Tela onde o técnico cadastra (opcionalmente) nome, CPF/CNPJ, contato, cidade e chave PIX.</td><td>Controla o que aparece nos documentos, sem depender de programador.</td></tr>
+  <tr><td><b>Recibo / Orçamento em PDF</b></td><td>Gera documento A4 do serviço: "Recibo" se pago, "Orçamento" se pendente, com valor por extenso.</td><td>Entrega um comprovante profissional para a academia pelo WhatsApp ou impresso, em dois cliques.</td></tr>
+</table>
+
+<h2>3. Peças usadas no serviço e lucro</h2>
+<div class="card">
+  <h3 style="margin-top:0">Problema</h3>
+  <p>O técnico registrava o serviço e o estoque separadamente, sem relação entre eles. O estoque ficava desatualizado e não era possível saber quanto cada serviço custou em peças.</p>
+  <h3>O que foi feito</h3>
+  <ul>
+    <li><b>Preço de custo</b> no cadastro de peças (Itens), opcional.</li>
+    <li>Seção <b>"Peças usadas"</b> no cadastro e nos detalhes de cada serviço: escolhe a peça (só aparecem peças com estoque, com a quantidade disponível), a quantidade, e pode aumentar, diminuir ou remover.</li>
+    <li><b>Baixa e devolução automática de estoque</b>: usar uma peça desconta do estoque; remover, diminuir ou excluir o serviço devolve.</li>
+    <li><b>Bloqueio por falta de estoque</b>, com mensagem clara (ex.: <i>"Estoque insuficiente de Correia: disponível 1, necessário 2"</i>). No cadastro, se faltar qualquer peça, nada é gravado.</li>
+    <li><b>Custo congelado</b>: o custo da peça é guardado no momento do uso, então um aumento de preço futuro não altera o lucro de serviços antigos.</li>
+    <li>Na tabela de Serviços, colunas <b>"Custo peças"</b> e <b>"Lucro"</b> (verde para lucro, vermelho para prejuízo), com ordenação.</li>
+    <li>No cadastro e nos detalhes, o lucro é mostrado ao vivo enquanto o técnico digita o valor e escolhe as peças.</li>
+    <li>Uma peça já usada em algum serviço não pode ser excluída, preservando o histórico.</li>
+  </ul>
+  <h3>Como usar</h3>
+  <ol>
+    <li>Em <b>Items</b>, cadastre a peça com o preço de custo. Em <b>Estoque</b>, informe a quantidade.</li>
+    <li>Em <b>Serviços → Novo Serviço</b>, preencha os dados, adicione as peças usadas e veja o custo e o lucro.</li>
+    <li>Salve. O estoque já estará atualizado e a tabela mostrará o lucro do serviço.</li>
+  </ol>
+  <h3>Benefício para o técnico</h3>
+  <p>Ele passa a saber <b>quanto ganhou de verdade em cada serviço</b> e identifica serviços que deram prejuízo. O estoque reflete sozinho o que foi usado nos consertos.</p>
+</div>
+
+<h2>4. Contas a receber</h2>
+<div class="card verde">
+  <h3 style="margin-top:0">Problema</h3>
+  <p>É comum o técnico fazer o conserto e a academia pagar dias depois. Sem registro, ele não sabia quem ainda devia nem há quanto tempo.</p>
+  <h3>O que foi feito</h3>
+  <ul>
+    <li>Cada serviço tem <b>status</b> "Pago" ou "Pendente" e a <b>data em que foi pago</b>.</li>
+    <li>Na tabela de Serviços: etiqueta colorida (<b>Pago</b> em verde; <b>Pendente · 12 dias</b> em laranja, mostrando o tempo em aberto), coluna "Pago em" e <b>filtro</b> por status.</li>
+    <li>Nos detalhes do serviço: botão <b>"Marcar como pago"</b> (data padrão hoje) e <b>"Desfazer pagamento"</b>.</li>
+    <li>No cadastro: opção <b>"Já recebido"</b>, para quando a academia paga na hora.</li>
+    <li>Na tela inicial (Home): cards <b>"A receber"</b> e <b>"Recebido no mês"</b> e a lista <b>"Quem está devendo"</b> por academia, da dívida mais antiga para a mais recente.</li>
+    <li>Validações: não aceita pagamento com data futura nem anterior à data do serviço.</li>
+  </ul>
+  <h3>Como usar</h3>
+  <ol>
+    <li>Ao cadastrar um serviço, marque "Já recebido" se a academia pagou na hora; caso contrário ele fica pendente.</li>
+    <li>Quando receber, abra os detalhes do serviço (⋯) e clique em <b>"Marcar como pago"</b>.</li>
+    <li>Consulte a <b>Home</b> para ver quanto há a receber e quem cobrar primeiro.</li>
+  </ol>
+  <h3>Benefício para o técnico</h3>
+  <p>Ao abrir o sistema ele sabe <b>quanto tem para receber, quanto já entrou no mês e quem cobrar primeiro</b>, sem depender de anotações soltas.</p>
+</div>
+
+<h2>5. Recibo e orçamento em PDF</h2>
+<div class="card laranja">
+  <h3 style="margin-top:0">Problema</h3>
+  <p>O técnico não tinha como entregar um comprovante organizado à academia, nem um documento de cobrança com os dados para pagamento.</p>
+  <h3>O que foi feito</h3>
+  <ul>
+    <li>Tela <b>"Meus dados"</b> (menu lateral): o técnico cadastra nome, CPF/CNPJ, telefone, e-mail, cidade e chave PIX. <b>Todos os campos são opcionais</b>, há uma prévia ao vivo e a opção de <b>não mostrar</b> os dados nos documentos. Nada fica fixo no código.</li>
+    <li>Documento A4 de cada serviço, com título automático: <b>RECIBO</b> (serviço pago) ou <b>ORÇAMENTO</b> (pendente), número, data de emissão, cliente, serviço, peças utilizadas (só nome e quantidade) e o valor total <b>por extenso</b>.</li>
+    <li>Recibo: declaração de recebimento, local e data por extenso e linha de assinatura. Orçamento: situação de pagamento e chave PIX.</li>
+    <li>O <b>custo das peças não aparece</b> no documento: é informação interna do técnico (revelaria a margem dele).</li>
+    <li>Botão <b>"Imprimir / Salvar PDF"</b>: o documento sai limpo, em A4, quebrando corretamente em várias páginas quando necessário. O nome sugerido do arquivo já vem pronto (ex.: "Recibo 000018 - Academia X").</li>
+  </ul>
+  <h3>Como usar</h3>
+  <ol>
+    <li>(Uma vez) Em <b>Meus dados</b>, preencha o que quiser mostrar e salve.</li>
+    <li>Em <b>Serviços</b>, clique no ícone de documento da linha (ou em "Ver recibo"/"Ver orçamento" nos detalhes).</li>
+    <li>Na aba que abrir, clique em <b>Imprimir / Salvar PDF</b> e escolha <b>Salvar como PDF</b>.</li>
+  </ol>
+  <h3>Benefício para o técnico</h3>
+  <p>Em dois cliques ele tem um <b>documento com aparência profissional</b> para enviar pelo WhatsApp ou imprimir, o que transmite confiança à academia e facilita o pagamento via PIX.</p>
+</div>
+
+<h2>6. Fluxo de trabalho do técnico</h2>
+<p>Com as melhorias, o ciclo completo de um atendimento fica registrado no sistema, do material ao recebimento:</p>
+<div class="fluxo">
+  <div class="passo"><b>1. Compra</b>Cadastra a peça com preço de custo e dá entrada no estoque.</div>
+  <div class="seta">→</div>
+  <div class="passo"><b>2. Serviço</b>Lança o serviço com as peças usadas; o estoque baixa e o lucro aparece.</div>
+  <div class="seta">→</div>
+  <div class="passo"><b>3. Cobrança</b>Envia o orçamento em PDF com a chave PIX.</div>
+  <div class="seta">→</div>
+  <div class="passo"><b>4. Recebimento</b>Marca o serviço como pago.</div>
+  <div class="seta">→</div>
+  <div class="passo"><b>5. Comprovante</b>Envia o recibo em PDF.</div>
+  <div class="seta">→</div>
+  <div class="passo"><b>6. Controle</b>A Home mostra o que entrou e quem ainda deve.</div>
+</div>
+
+<h2>7. Correções feitas durante o projeto</h2>
+<p>Ao implementar as melhorias, foram encontrados e corrigidos problemas que já existiam no sistema:</p>
+<table class="info">
+  <tr><th style="width:40%">Problema</th><th>Correção</th></tr>
+  <tr><td>Detalhes do serviço (⋯) mostravam "Conteúdo não mapeado".</td><td>A tela de detalhes de Serviços foi ligada à tabela.</td></tr>
+  <tr><td>Editar item ou serviço sem mudar a data dava erro no banco.</td><td>A data passa a ser enviada no formato aceito pelo MySQL (AAAA-MM-DD); o backend também passou a aceitar o formato antigo.</td></tr>
+  <tr><td>Edição de item (<code>PUT /item/:id</code>) não enviava resposta.</td><td>A rota passou a responder corretamente.</td></tr>
+  <tr><td>Cadastro de item/serviço mostrava "sucesso" mesmo quando falhava.</td><td>Os erros do servidor passam a ser exibidos com a mensagem correta.</td></tr>
+  <tr><td>Título "Editando: undefined" na edição de serviço.</td><td>Passa a mostrar o nome do contratante.</td></tr>
+  <tr><td>"ID do Registro" aparecia nas telas de detalhes.</td><td>Removido (informação interna, sem utilidade para o técnico).</td></tr>
+  <tr><td>Excluir uma peça usada em serviço gerava erro genérico.</td><td>Mensagem explicando por que a exclusão não é permitida.</td></tr>
+</table>
+
+<h2>8. Banco de dados e como atualizar</h2>
+<p>As mudanças no banco foram feitas por <b>migrações</b> (scripts SQL numerados em <code>backend/migrations/</code>), todas aplicadas no banco <code>inovatec</code>, testadas e com instruções de reversão em <code>Documentacao_Alteracoes_Banco_de_Dados.pdf</code>.</p>
+<table class="info">
+  <tr><th style="width:34%">Migração</th><th>O que faz</th></tr>
+  <tr><td><code>001_pecas_servico.sql</code></td><td>Coluna <code>preco_custo</code> em <code>tb_item</code> e nova tabela <code>tb_servico_item</code> (peças usadas em cada serviço).</td></tr>
+  <tr><td><code>002_contas_receber.sql</code></td><td>Colunas <code>status</code> e <code>data_pagamento</code> em <code>tb_registro_servico</code>.</td></tr>
+  <tr><td><code>003_prestador.sql</code></td><td>Nova tabela <code>tb_prestador</code> (dados do técnico para os documentos).</td></tr>
+</table>
+<div class="note"><b>Para quem usa outro banco</b> (ex.: um banco local de testes): execute as três migrações <b>na ordem</b> (001, 002, 003) antes de rodar a nova versão do sistema. O banco compartilhado <code>inovatec</code> já está atualizado.</div>
+
+<h3>Como executar o sistema</h3>
+<ol>
+  <li>Backend: criar <code>backend/.env</code> com os dados do banco (<code>DB_HOST</code>, <code>DB_DATABASE</code>, <code>DB_USER</code>, <code>DB_PASSWORD</code>, <code>DB_PORT</code>), depois <code>cd backend</code>, <code>npm install</code> e <code>npm start</code> (porta 3333).</li>
+  <li>Frontend: <code>cd frontend</code>, <code>npm install</code> e <code>npm run dev</code>; abrir <code>http://localhost:5173</code>.</li>
+  <li>Após atualizar o código, <b>reinicie o backend</b>. Se uma tela nova aparecer em branco, reinicie também o <code>npm run dev</code>.</li>
+</ol>
+
+<h2>9. Pontos de atenção</h2>
+<p>Itens identificados que <b>não fizeram parte do escopo</b> destas melhorias e ficam registrados para o grupo:</p>
+<ul>
+  <li><b>Migrações fora do Git:</b> o <code>.gitignore</code> ignora todos os arquivos <code>*.sql</code>, incluindo <code>backend/migrations/</code>. Para versioná-las, é preciso adicionar a exceção <code>!backend/migrations/*.sql</code>.</li>
+  <li><b>Rota <code>registro-itens</code>:</b> usa <code>app.db_registro_item</code>, mas o servidor registra <code>db_registro</code>; a rota falha ao ser chamada e não envia <code>id_item</code>.</li>
+  <li><b>Registros sem item:</b> há registros em <code>tb_registro_item</code> sem item vinculado (<code>id_item</code> nulo), aparentemente de testes ou do upload.</li>
+  <li><b>Cards de despesas da Home:</b> "Despesas Pagas" filtra o status <code>'Paga'</code> e "Pendentes" filtra <code>'NÃO'</code>; se o cadastro usar outros valores, os cards ficam zerados.</li>
+  <li><b>Login:</b> a tela de login ainda não valida usuário (o projeto foi pensado para um único usuário).</li>
+</ul>
+
+<h2>10. Etapas e documentos gerados</h2>
+<table class="info">
+  <tr><th style="width:12%">Etapa</th><th>Entrega</th></tr>
+  <tr><td>1.1 – 1.5</td><td>Peças usadas no serviço: banco, preço de custo, regras de estoque, tela de peças e lucro por serviço.</td></tr>
+  <tr><td>2.1 – 2.4</td><td>Contas a receber: banco, regras de pagamento, tela de Serviços e painel na Home.</td></tr>
+  <tr><td>5.1 – 5.4</td><td>Recibo/Orçamento: dados do prestador, layout do documento, impressão/PDF e esta documentação.</td></tr>
+</table>
+<table class="info">
+  <tr><th style="width:42%">Documento</th><th>Para quem / conteúdo</th></tr>
+  <tr><td><code>docs/Documentacao_Melhorias.pdf</code></td><td>Visão geral (este documento).</td></tr>
+  <tr><td><code>docs/Documentacao_Frontend.pdf</code></td><td>Desenvolvedores: telas, componentes, serviços, utilitários e fluxos do frontend.</td></tr>
+  <tr><td><code>docs/Documentacao_Backend.pdf</code></td><td>Desenvolvedores: rotas da API, regras de negócio, validações e arquivos do backend.</td></tr>
+  <tr><td><code>docs/Documentacao_Alteracoes_Banco_de_Dados.pdf</code></td><td>Estrutura do banco: DER atualizado, tabelas, restrições, scripts e reversão.</td></tr>
+</table>
+
+</div>
+</body>
+</html>
