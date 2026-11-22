@@ -2,7 +2,7 @@ export const uploadFile = async ({ endpoint, file, fieldName }) => {
   const formData = new FormData();
   formData.append(fieldName, file);
 
-  const response = await fetch(`https://api-inovatec-232386318067.southamerica-east1.run.app/${endpoint}`, {
+  const response = await fetch(`https://inovatec-api-49057349573.us-central1.run.app/${endpoint}`, {
     method: "POST",
     body: formData,
   });
